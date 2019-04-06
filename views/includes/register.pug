@@ -1,7 +1,7 @@
 div(class='d-flex h-100 justify-content-center align-items-center')
   div(class='column w-50 shadow text-center p-4')
     h5(class='my-4') Create an account
-    form(class='text-left')
+    form(class='text-left' action='/lobby' method='post'')
       div(class='form-group')
         label User ID
         input(type='text' class='form-control' id='userId' placeholder='Enter user ID')
