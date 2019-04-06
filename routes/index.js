@@ -18,6 +18,10 @@ router.get('/lobby', function(req, res, next) {
   res.render('lobby', { title: 'Lobby' });
 });
 
+router.get('/mylobbies', function(req, res, next) {
+  res.render('lobby', { title: 'Lobby' });
+});
+
 router.get('/game', function(req, res, next) {
   res.render('game', { title: 'Game' });
 });
