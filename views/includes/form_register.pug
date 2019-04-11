@@ -4,13 +4,13 @@ div(class='d-flex h-100 justify-content-center align-items-center')
     form(class='text-left' action='/lobby' method='post')
       div(class='form-group')
         label Username
-        input(type='text' class='form-control' id='username' placeholder='Enter username')
+        input(type='text' class='form-control' id='username' placeholder='Enter username' required )
       div(class='form-group')
         label Password
-        input(type='text' class='form-control' id='password' placeholder='Enter password')
+        input(type='password' class='form-control' id='password' placeholder='Enter password' required )
       div(class='form-group')
         label Confirm Password
-        input(type='text' class='form-control' id='passwordconfirm' placeholder='Confirm password')
-      button(type='submit' class='btn btn-primary w-100 mt-4') Submit
+        input(type='password' class='form-control' id='passwordconfirm' placeholder='Confirm password' )
+      button(type='submit' class='btn btn-primary w-100 mt-4') Register
       small Already have an account? 
         a(href='/login') Login
