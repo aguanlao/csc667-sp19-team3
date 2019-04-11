@@ -1,6 +1,21 @@
 var express = require('express');
 var router = express.Router();
 
+// TEMPORARY: probably not the best practice to place this directly in routes?
+var mysql = require('mysql');
+function getConnection() {
+    return mysql.createConnection({
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASS,
+        database: process.env.DB_NAME
+    });
+}
+
+// TODO
+// - add sessions for login
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Index' });
@@ -12,21 +27,38 @@ router.get('/login', function(req, res, next) {
 
 router.post('/login', function(req, res, next){
 
+  const username = req.body.username;
+  const password = req.body.password;
+
   console.log();
   console.log('From /login');
-  console.log(req.body.username);
-  console.log(req.body.password);
+  console.log(username);
+  console.log(password);
   console.log();
 
-  // TODO
-  // - make select query to check for matching user info
+  var queryString = 'SELECT * FROM user WHERE username LIKE \'';
+  queryString = queryString + username + "' AND password LIKE '";
+  queryString = queryString + password + "';";
 
-  if (req.body.username != undefined && req.body.password != undefined) {
-    res.render('lobby', { title: 'Lobby' });
-  }
-  else {
-    res.render('login', {title: 'Login' });
-  }
+  var connection = getConnection();
+  connection.query(queryString, (err, rows, fields) => {
+    if (err) {
+      console.log("Failed to match user info: " + err + "\n");
+      res.render('login', {title: 'Login'} );
+      return;
+    }
+
+    if (!rows.length) {
+      console.log("Failed to match user info: " + err + "\n");
+      res.render('login', {title: 'Login'} );
+      return;
+    }
+
+    console.log("User info found! Login successful!\n");
+    res.render('lobby', {title: 'Lobby'});
+  });
+  connection.end();
+
 });
 
 router.get('/register', function(req, res, next) {
@@ -34,6 +66,9 @@ router.get('/register', function(req, res, next) {
 });
 
 router.post('/register', function(req, res, next) {
+
+  // TODO
+  // - double check console error, otherwise, it still works
 
   const username = req.body.username;
   const password = req.body.password;
@@ -48,14 +83,26 @@ router.post('/register', function(req, res, next) {
   console.log(password);
   console.log();
 
-  // TODO
-  // - make insert query to create a new user
+  var queryString = 'INSERT INTO user (`username`, `password`) VALUES (?, ?);';
 
-  // successful => login page
-  // error => register page
+  var connection = getConnection();
+  connection.query(queryString, [username, password], (err, rows, fields) => {
+    if (err) {
+      console.log("Failed to insert user into database: " + err + "\n");
+      res.render('register', {title: 'Register'} );
+      return;
+    }
 
-  res.render('login', {title: 'Login'} );
+    if (!rows.length) {
+      console.log("Failed to insert user into database: " + err + "\n");
+      res.render('register', {title: 'Register'} );
+      return;
+    }
 
+    console.log("New user created! Registration successful!\n");
+    res.render('lobby', {title: 'Lobby'});
+  });
+  connection.end();
 });
 
 router.get('/lobby', function(req, res, next) {
