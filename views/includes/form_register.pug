@@ -1,7 +1,7 @@
 div(class='d-flex h-100 justify-content-center align-items-center')
   div(class='column w-50 shadow text-center p-4')
     h5(class='my-4') Create an account
-    form(class='text-left' action='/lobby' method='post')
+    form(class='text-left' action='/lobby' method='post' oninput='passwordconfirm.setCustomValidity(passwordconfirm.value != password.value ? "Passwords do not match." : "")')
       div(class='form-group')
         label Username
         input(type='text' class='form-control' id='username' placeholder='Enter username' required )
