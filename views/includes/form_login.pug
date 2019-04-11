@@ -1,13 +1,13 @@
 div(class='d-flex h-100 justify-content-center align-items-center')
   div(class='column w-50 shadow text-center p-4')
     h5(class='my-4') Welcome back
-    form(class='text-left' action='/lobby' method='post')
+    form(class='text-left' action='/login' method='post')
       div(class='form-group')
         label Username
         input(type='text' class='form-control' name="username" placeholder='Enter username' required)
       div(class='form-group')
         label Password
-        input(type='password' class='form-control' name ="password" placeholder='Enter password' required)
+        input(type='password' class='form-control' name="password" placeholder='Enter password' required)
         small
           a(href='#') Forgot your password?
       button(type='submit' class='btn btn-primary w-100 mt-4') Login
