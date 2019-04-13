@@ -15,6 +15,7 @@ function getConnection() {
 
 // TODO
 // - add sessions for login
+// - change renders to redirects where applicable when sessions are added
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -44,18 +45,20 @@ router.post('/login', function(req, res, next){
   connection.query(queryString, (err, rows, fields) => {
     if (err) {
       console.log("Failed to match user info: " + err + "\n");
-      res.render('login', {title: 'Login'} );
+      res.redirect('/login');
       return;
     }
 
     if (!rows.length) {
       console.log("Failed to match user info: " + err + "\n");
-      res.render('login', {title: 'Login'} );
+      res.redirect('/login');
       return;
     }
 
     console.log("User info found! Login successful!\n");
-    res.render('lobby', {title: 'Lobby'});
+    res.render('lobby', {title: 'Lobby', username: username});
+    //res.redirect("/lobby"); // TODO: use after sessions are added
+    
   });
   connection.end();
 
