@@ -70,9 +70,6 @@ router.get('/register', function(req, res, next) {
 
 router.post('/register', function(req, res, next) {
 
-  // TODO
-  // - double check console error, otherwise, it still works
-
   const username = req.body.username;
   const password = req.body.password;
 
@@ -95,15 +92,10 @@ router.post('/register', function(req, res, next) {
       res.render('register', {title: 'Register'} );
       return;
     }
-
-    if (!rows.length) {
-      console.log("Failed to insert user into database: " + err + "\n");
-      res.render('register', {title: 'Register'} );
-      return;
-    }
+    //TODO: Handle if the registered user already exists
 
     console.log("New user created! Registration successful!\n");
-    res.render('lobby', {title: 'Lobby'});
+    res.redirect('/login');
   });
   connection.end();
 });
