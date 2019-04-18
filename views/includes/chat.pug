@@ -1,1 +1,61 @@
-div(class='d-flex h-100 justify-content-center align-items-center')
+
+div(class='card bg-light' id='private_box' style='w-100')
+    div(class='card')
+       div(class='card-header') Chatbox
+       div(class='card-body' style='height: 300px') Screen
+            hr
+            hr
+            hr
+            hr
+            hr
+            hr
+       div(class='card-footer') Keyboard
+            form(id='sendMessage')
+                div(class='input-group')
+                    input(type="text" class='form-control' name='message' placeholder='Type your message...') 
+                    div(class='input-group-append')
+                    button(class='btn btn-primary') Send
+
+
+//- div(class='d-flex h-100 justify-content-center align-items-center')
+
+//- div(class='card bg-light' id='world_chat_box' style='w-100')
+//-     //- div(class='card-body py-2')
+//-     div(class='card')
+//-        div(class='card-header') Chatbox
+//-        div(class='card-body' style='height: 300px') Screen
+//-             hr
+//-             hr
+//-             hr
+//-             hr
+//-             hr
+//-             hr
+//-        div(class='card-footer') Keyboard
+//-             form(id='sendMessage')
+//-                 div(class='input-group')
+//-                     input(type="text" class='form-control' name='message' placeholder='Type your message...') 
+//-                     div(class='input-group-append')
+//-                     button(class='btn btn-primary') Send
+
+
+        
+div(class='card-footer text-muted small text-right py-1')
+    div(class='row')
+        button(class='col-sm-6 btn btn-lighting' id='private_box' onClick='handleChange()') Private Chat
+        button(class='col-sm-6 btn btn-lighting' id='world_box' onClick='handleChange()') World Chat
+
+
+script(type="text/javascript").
+      $("#private_box").click(function() {
+      console.log('login btn clicked');
+      $("#world_box").hide();
+      $("#rivate_box").show();
+      });
+
+      $("#world_box").click(function() {
+      console.log('regsiter btn clicked');
+      $("#private_box").hide();
+      $("#world_box").show();
+      });
+    }
+
