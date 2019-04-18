@@ -1,11 +1,23 @@
 div(class='d-flex h-25 text-center justify-content-center align-items-center')
   ul(class='nav flex-column')
-    li(class='nav-item')
-      a(class='nav-link' href='/login') Login
-    li(class='nav-item')
-      a(class='nav-link' href='/register') Register
+    if user
+      h2 Welcome !{user}
+      li(class='nav-item')
+        a(class='nav-link' href='/logout') Logout
+      li(class='nav-item')
+    else
+      li(class='nav-item')
+        usename
+        a(class='nav-link' href='/login') Login
+      li(class='nav-item')
+        a(class='nav-link' href='/register') Register
 div(class='d-flex h-50 text-center justify-content-center')
   ul(class='nav flex-column')
+    if user
+      li(class='nav-item')
+        a(class='nav-link' href='/user_lobby') My Lobbies
+      li(class='nav-item')
+        a(class='nav-link' href='/logout') Create Lobby
     li(class='nav-item')
       a(class='nav-link' href='/lobby') Game Lobbies
     li(class='nav-item')
