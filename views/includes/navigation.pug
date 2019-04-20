@@ -1,7 +1,7 @@
 div(class='d-flex h-25 text-center justify-content-center align-items-center')
   ul(class='nav flex-column')
     if user
-      h2 Welcome !{user}
+      h2 Welcome !{user.username}
       li(class='nav-item')
         a(class='nav-link' href='/logout') Logout
       li(class='nav-item')
