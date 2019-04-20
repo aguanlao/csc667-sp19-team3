@@ -1,17 +1,18 @@
 div(class='d-flex h-75 w-100 shadow my-3 p-3')
   //- div(class='flex-row bg-dark h-100 w-100')
   div(class='row-flex bg-dark h-100 w-100')
-    div(class='card justify-content-around text-center h-100' type='text/html' id='board' style='width: 380px; margin: 0 auto') 
+    div(class='card justify-content-around text-center h-100' type='text/html' id='board' style='width: 500px; margin: 0 auto') 
     div(class='card')
-      p
-        | Status: 
-        span#status
+      //- p
+      //-   | Status: 
+      //-   span#status
       p
         | FEN: 
-        span#fen
-      p
-        | pgn: 
-        span#pgn
+        //- span#fen
+        span(id="fen")
+      //- p
+      //-   | pgn: 
+      //-   span#pgn
 
 
 div(class='card bg-light w-100')
@@ -20,13 +21,13 @@ div(class='card bg-light w-100')
     div(class='row')
       div(class='col-5')
         div(class='d-flex justify-content-around')
-          h5 Player 1
+          h5(id="player1_turn") Player 1
       div(class='col-2 border-right border-left')
         div(class='d-flex justify-content-around')
           h5 vs.
       div(class='col-5')
         div(class='d-flex justify-content-around')
-          h5 Player 2
+          h5(id="player2_turn") Player 2
 
 
 script.
@@ -105,6 +106,9 @@ script.
         var moveColor = 'White';
         if (game.turn() === 'b') {
           moveColor = 'Black';
+
+          console.log("black turn")
+
         }
         // checkmate?
         if (game.in_checkmate() === true) {
