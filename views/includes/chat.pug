@@ -1,19 +1,10 @@
 ul(class='nav nav-tabs mb-2')
     li(class='nav item')
-<<<<<<< HEAD
         a(class='nav-link active' onClick='OpenWorldChat()') World
-        a(class='nav-link active' onClick='OpenPrivateChat()') Private
+        a(class='nav-link' onClick='OpenPrivateChat()') Private
 
 div(class='list group h-75 overflow-auto' id="world_chat")
     // example chat block
-    div(class="card-header" style="color: red") 
-        p Welcome to world channel
-=======
-        a(class='nav-link active') World
-
-div(class='list group h-75 overflow-auto')
-    // example chat block
->>>>>>> fcea92cd7718d8b394c6028c6a9012db7b95df10
     li(class='list-group-item mb-1')
         div(class='d-flex w-100 justify-content-between')
             h6(class='mb-0') Name
@@ -38,7 +29,6 @@ div(class='list group h-75 overflow-auto')
         div(class='d-flex w-100 justify-content-between')
             h6(class='mb-0') Name
         small Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
-<<<<<<< HEAD
 //- div(class='input-group border-top pt-2')
 //-     input(type='text' class='form-control' placeholder='Message world chat')
 //-     div(class='input-group-append')
@@ -49,8 +39,6 @@ div(class='list group h-75 overflow-auto')
 
 
 div(class='list group h-75 overflow-auto' id="private_chat")
-    div(class="card-header" style="color: red") 
-        p Welcome to Private channel
     // example chat block
     li(class='list-group-item mb-1')
         div(class='d-flex w-100 justify-content-between')
@@ -62,15 +50,12 @@ div(class='list group h-75 overflow-auto' id="private_chat")
             h6(class='mb-0') Name
         small Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
 
-=======
->>>>>>> fcea92cd7718d8b394c6028c6a9012db7b95df10
 div(class='input-group border-top pt-2')
     input(type='text' class='form-control' placeholder='Message world chat')
     div(class='input-group-append')
         button(class='btn btn-outline-primary' type='button') Send
 
 
-<<<<<<< HEAD
 
 
 
@@ -135,68 +120,6 @@ script.
         $("#world_chat").hide();
         $("#private_chat").show();
     }
-=======
-//-
-    div(class='card bg-light' id='private_box' style='w-100')
-        div(class='card')
-        div(class='card-header') Chatbox
-        div(class='card-body' style='height: 300px') Screen
-                hr
-                hr
-                hr
-                hr
-                hr
-                hr
-        div(class='card-footer') Keyboard
-                form(id='sendMessage')
-                    div(class='input-group')
-                        input(type="text" class='form-control' name='message' placeholder='Type your message...') 
-                        div(class='input-group-append')
-                        button(class='btn btn-primary') Send
-
-//-
-    //- div(class='d-flex h-100 justify-content-center align-items-center')
-
-    //- div(class='card bg-light' id='world_chat_box' style='w-100')
-    //-     //- div(class='card-body py-2')
-    //-     div(class='card')
-    //-        div(class='card-header') Chatbox
-    //-        div(class='card-body' style='height: 300px') Screen
-    //-             hr
-    //-             hr
-    //-             hr
-    //-             hr
-    //-             hr
-    //-             hr
-    //-        div(class='card-footer') Keyboard
-    //-             form(id='sendMessage')
-    //-                 div(class='input-group')
-    //-                     input(type="text" class='form-control' name='message' placeholder='Type your message...') 
-    //-                     div(class='input-group-append')
-    //-                     button(class='btn btn-primary') Send
-
-
-            
-    div(class='card-footer text-muted small text-right py-1')
-        div(class='row')
-            button(class='col-sm-6 btn btn-lighting' id='private_box' onClick='handleChange()') Private Chat
-            button(class='col-sm-6 btn btn-lighting' id='world_box' onClick='handleChange()') World Chat
-
-
-    script(type="text/javascript").
-        $("#private_box").click(function() {
-        console.log('login btn clicked');
-        $("#world_box").hide();
-        $("#rivate_box").show();
-        });
-
-        $("#world_box").click(function() {
-        console.log('regsiter btn clicked');
-        $("#private_box").hide();
-        $("#world_box").show();
-        });
-        }
->>>>>>> fcea92cd7718d8b394c6028c6a9012db7b95df10
 
     function OpenWorldChat(){
         console.log('World Chat Is Opened');
