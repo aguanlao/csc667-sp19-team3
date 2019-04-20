@@ -108,6 +108,10 @@ router.get('/mylobbies', function(req, res, next) {
   res.render('lobby', { title: 'Lobby' });
 });
 
+router.get('/create_lobby', function(req, res, next) {
+  res.render('create_lobby', { title: 'Lobby' });
+});
+
 router.get('/game', function(req, res, next) {
   res.render('game', { title: 'Game' });
 });

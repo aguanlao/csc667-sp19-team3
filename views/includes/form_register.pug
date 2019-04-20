@@ -4,13 +4,13 @@ div(class='d-flex h-100 justify-content-center align-items-center')
     form(class='text-left' action='/register' method='post' oninput='passwordconfirm.setCustomValidity(passwordconfirm.value != password.value ? "Passwords do not match." : "")')
       div(class='form-group')
         label Username
-        input(type='text' class='form-control' name="username" placeholder='Enter username' required )
+        input(type='text' class='form-control' name="username" minlength="5" maxlength="30" placeholder='Enter username' required autofocus)
       div(class='form-group')
         label Password
-        input(type='password' class='form-control' name="password" placeholder='Enter password' required )
+        input(type='password' class='form-control' name="password" maxlength="15" placeholder='Enter password' required )
       div(class='form-group')
         label Confirm Password
-        input(type='password' class='form-control' name='passwordconfirm' placeholder='Confirm password' )
+        input(type='password' class='form-control' name='passwordconfirm' maxlength="15" placeholder='Confirm password' )
       button(type='submit' class='btn btn-primary w-100 mt-4') Register
       small Already have an account? 
         a(href='/login') Login

@@ -1,4 +1,4 @@
-div(class='d-flex h-25 text-center justify-content-center align-items-center')
+div(class='d-flex h-25 text-center justify-content-center align-items-center border-bottom')
   ul(class='nav flex-column')
     if user
       h2 Welcome !{user}
@@ -11,13 +11,13 @@ div(class='d-flex h-25 text-center justify-content-center align-items-center')
         a(class='nav-link' href='/login') Login
       li(class='nav-item')
         a(class='nav-link' href='/register') Register
-div(class='d-flex h-50 text-center justify-content-center')
+div(class='d-flex h-50 text-center justify-content-center border-bottom pt-5')
   ul(class='nav flex-column')
     if user
       li(class='nav-item')
         a(class='nav-link' href='/user_lobby') My Lobbies
       li(class='nav-item')
-        a(class='nav-link' href='/logout') Create Lobby
+        a(class='nav-link' href='/create_lobby') Create Lobby
     li(class='nav-item')
       a(class='nav-link' href='/lobby') Game Lobbies
     li(class='nav-item')
