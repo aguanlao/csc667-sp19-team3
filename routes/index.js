@@ -76,6 +76,11 @@ passport.deserializeUser(function(user_id, done) {
   //});
 });
 
+router.get('/logout', function(req, res, next) {
+  req.logout();
+  res.redirect('/');  
+});
+
 router.get('/register', function(req, res, next) {
   if (!req.isAuthenticated()) {
     res.render('register', { title: 'Register' });
