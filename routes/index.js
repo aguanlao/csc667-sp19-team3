@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var passport = require('passport');
 
 // TEMPORARY: probably not the best practice to place this directly in routes?
 var mysql = require('mysql');
@@ -19,11 +20,16 @@ function getConnection() {
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Index' });
+  const user = req.user;
+  res.render('index', { title: 'Index', user: user});
 });
 
 router.get('/login', function(req, res, next) {
-  res.render('login', {title: 'Login'} );
+  if (!req.isAuthenticated()) {
+    res.render('login', {title: 'Login'} );
+  } else {
+    res.redirect('/'); // TODO: possibly change route
+  }
 });
 
 router.post('/login', function(req, res, next){
@@ -43,29 +49,44 @@ router.post('/login', function(req, res, next){
 
   var connection = getConnection();
   connection.query(queryString, (err, rows, fields) => {
-    if (err) {
-      console.log("Failed to match user info: " + err + "\n");
-      res.redirect('/login');
-      return;
-    }
-
-    if (!rows.length) {
+    if (err || !rows.length) {
       console.log("Failed to match user info: " + err + "\n");
       res.redirect('/login');
       return;
     }
 
     console.log("User info found! Login successful!\n");
-    res.render('lobby', {title: 'Lobby', username: username});
-    //res.redirect("/lobby"); // TODO: use after sessions are added
-    
+    //res.render('lobby', {title: 'Lobby'});
+    const user_id = rows[0].uid;
+    console.log('\nLogin query result: ' + user_id + '\n');
+    req.login(user_id, function(err){
+      res.redirect('/lobby');
+    });
   });
   connection.end();
 
 });
 
+passport.serializeUser(function(user_id, done) {
+  done(null, user_id);
+});
+passport.deserializeUser(function(user_id, done) {
+  //User.findById(id, function(err, user) {
+    done(null, user_id);
+  //});
+});
+
+router.get('/logout', function(req, res, next) {
+  req.logout();
+  res.redirect('/');  
+});
+
 router.get('/register', function(req, res, next) {
-  res.render('register', { title: 'Register' });
+  if (!req.isAuthenticated()) {
+    res.render('register', { title: 'Register' });
+  } else {
+    res.redirect('/'); // TODO: possibly change route
+  }
 });
 
 router.post('/register', function(req, res, next) {
@@ -101,11 +122,24 @@ router.post('/register', function(req, res, next) {
 });
 
 router.get('/lobby', function(req, res, next) {
-  res.render('lobby', {title: 'Lobby'});
+  console.log('\nUser: ' + req.user);
+  console.log('Authenicated: ' + req.isAuthenticated() + '\n');
+
+  if (req.isAuthenticated()) {
+    const user = req.user;
+    res.render('lobby', {title: 'Lobby', user: user});
+  } else {
+    res.redirect('/login');
+  }
 });
 
 router.get('/mylobbies', function(req, res, next) {
-  res.render('lobby', { title: 'Lobby' });
+  if (req.isAuthenticated()) {
+    const user = req.user;
+    res.render('lobby', { title: 'Lobby' , user: user});
+  } else {
+    res.redirect('/login');
+  }
 });
 
 router.get('/create_lobby', function(req, res, next) {
@@ -118,7 +152,12 @@ router.get('/about', function(req, res, next) {
 });
 
 router.get('/game', function(req, res, next) {
-  res.render('game', { title: 'Game' });
+  if (req.isAuthenticated()) {
+    const user = req.user;
+  res.render('game', { title: 'Game' , user: user});
+} else {
+  res.redirect('/login');
+}
 });
 
 module.exports = router;
