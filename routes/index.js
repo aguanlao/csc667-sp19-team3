@@ -151,13 +151,4 @@ router.get('/about', function(req, res, next) {
   res.render('about', { title: 'About' });
 });
 
-router.get('/game', function(req, res, next) {
-  if (req.isAuthenticated()) {
-    const user = req.user;
-  res.render('game', { title: 'Game' , user: user});
-} else {
-  res.redirect('/login');
-}
-});
-
 module.exports = router;
