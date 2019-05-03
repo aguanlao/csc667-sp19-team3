@@ -1,4 +1,5 @@
 var express = require('express');
+var app = express();
 var router = express.Router();
 var passport = require('passport');
 
@@ -13,6 +14,17 @@ function getConnection() {
         database: process.env.DB_NAME
     });
 };
+
+app.use('/game', router);
+
+router.get('/', function (req, res, next) {
+  if (req.isAuthenticated()) {
+    const user = req.user;
+    res.render('game', { title: 'Game', user: user });
+  } else {
+    res.redirect('/login');
+  }
+});
 
 function getGameData(data, callback) {
   var game_id = 10001;
@@ -124,5 +136,58 @@ router.get('/connect', function(req, res, next) {
   }
 });
 
+router.get('/state', function (req, res, next) {
+  if (req.isAuthenticated()) {
+    // TEMP: wait for game id to be stored in front end
+    let gameId = 10000;
+    let queryString = "SELECT `game_state` FROM `game` WHERE gid = " + gameId + ";";
+    let connection = getConnection();
 
-  module.exports = router;
+    connection.query(queryString, (err, rows, fields) => {
+      if (err || !rows.length) {
+        console.log("Failed to lookup game state: " + err + "\n");
+        // TODO: define behavior/action for error
+        return;
+      }
+
+      let queryResult = rows; // results
+      let queryResultString = JSON.stringify(rows); // results as string
+      console.log("\nQuery result:\n" + queryResultString); // test print
+      let state = queryResult[0].game_state; // game state
+      console.log("\nGame state for gid = " + gameId + ": \n" + state + "\n"); // test print
+
+      // TODO: front end use jquery + ajax to update game state without page refresh
+      res.send(state); // temporary
+    });
+  } else {
+    res.redirect('../login');
+  }
+});
+
+router.post('/state', function (req, res, next) {
+  if (req.isAuthenticated()) {
+    // TEMP: wait for game id to be stored in front end
+    let gameId = 10000;
+    //let gameState = req.body.fen;
+    // TEMP: currently replaces '1' with '0' at the end of the string
+    let gameState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
+    let queryString = "UPDATE `game` SET `game_state` = \'" + gameState + "\' WHERE gid = \'" + gameId + "\';";
+    console.log("\nQuery string: " + queryString + "\n"); // test print
+    let connection = getConnection();
+
+    connection.query(queryString, (err, rows, fields) => {
+      if (err) {
+        console.log("Failed to update game state: " + err + "\n");
+        // TODO: define behavior/action for error
+        return;
+      }
+
+      console.log("\nGame state update successful for gid = " + gameId + "!\n");
+      res.send("Temporary only!");
+    });
+  } else {
+    res.redirect('../login');
+  }
+});
+
+module.exports = router;
