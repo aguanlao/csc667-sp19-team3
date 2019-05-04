@@ -15,7 +15,6 @@ function getConnection() {
 }
 
 // TODO
-// - add sessions for login
 // - change renders to redirects where applicable when sessions are added
 
 /* GET home page. */
@@ -43,7 +42,7 @@ router.post('/login', function(req, res, next){
   console.log(password);
   console.log();
 
-  var queryString = 'SELECT * FROM user WHERE username LIKE \'';
+  var queryString = 'SELECT `uid`, `username` FROM user WHERE username LIKE \'';
   queryString = queryString + username + "' AND password LIKE '";
   queryString = queryString + password + "';";
 
@@ -56,10 +55,16 @@ router.post('/login', function(req, res, next){
     }
 
     console.log("User info found! Login successful!\n");
-    //res.render('lobby', {title: 'Lobby'});
-    const user_id = rows[0].uid;
-    console.log('\nLogin query result: ' + user_id + '\n');
-    req.login(user_id, function(err){
+
+    // USAGE FOR USER INFO:
+    // user_info = {"uid":1, "username":"bob123"}
+    // access uid like this: user_info.uid
+    // access username like this: user_info.username
+    const user_info = rows[0];
+    console.log('\nLogin query result: ' + JSON.stringify(user_info) + '\n'); // test print
+
+    // pass user_info as object req.user
+    req.login(user_info, function(err){
       res.redirect('/lobby');
     });
   });
@@ -67,12 +72,12 @@ router.post('/login', function(req, res, next){
 
 });
 
-passport.serializeUser(function(user_id, done) {
-  done(null, user_id);
+passport.serializeUser(function(user_info, done) {
+  done(null, user_info);
 });
-passport.deserializeUser(function(user_id, done) {
+passport.deserializeUser(function(user_info, done) {
   //User.findById(id, function(err, user) {
-    done(null, user_id);
+    done(null, user_info);
   //});
 });
 
@@ -122,12 +127,12 @@ router.post('/register', function(req, res, next) {
 });
 
 router.get('/lobby', function(req, res, next) {
-  console.log('\nUser: ' + req.user);
-  console.log('Authenicated: ' + req.isAuthenticated() + '\n');
+  console.log('\nUser: ' + req.user.username); // test print
+  console.log('Authenicated: ' + req.isAuthenticated() + '\n'); // test print
 
   if (req.isAuthenticated()) {
-    const user = req.user;
-    res.render('lobby', {title: 'Lobby', user: user});
+    const username = req.user.username;
+    res.render('lobby', {title: 'Lobby', user: username});
   } else {
     res.redirect('/login');
   }
@@ -135,8 +140,8 @@ router.get('/lobby', function(req, res, next) {
 
 router.get('/mylobbies', function(req, res, next) {
   if (req.isAuthenticated()) {
-    const user = req.user;
-    res.render('lobby', { title: 'Lobby' , user: user});
+    const username = req.user.username;
+    res.render('lobby', { title: 'Lobby' , user: username});
   } else {
     res.redirect('/login');
   }
