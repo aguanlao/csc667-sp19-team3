@@ -19,8 +19,8 @@ app.use('/game', router);
 
 router.get('/', function (req, res, next) {
   if (req.isAuthenticated()) {
-    const user = req.user;
-    res.render('game', { title: 'Game', user: user });
+    const username = req.user.username;
+    res.render('game', { title: 'Game', user: username });
   } else {
     res.redirect('/login');
   }
