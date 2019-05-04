@@ -136,10 +136,43 @@ router.get('/connect', function(req, res, next) {
   }
 });
 
+router.get('/leave', function(req, res, next) {
+  if (req.isAuthenticated()) {
+    //User leaves the game they’re currently in
+    //Request: takes user id and lobby id
+    //Response: changes game state to unfinished
+
+    let userId = req.user.uid;
+    // TEMP: get lobby id from front end when ready
+    let gameId = 10001; // for use with: uid = 1 => bob123
+    //let gameId = req.body.gameid;
+
+    let connection = getConnection();
+
+    //UPDATE `game` SET `is_active`='2' WHERE gid='10001' AND (uid_1='1' OR uid_2='1');
+    let updateQueryString = "UPDATE `game` SET `is_active`='2' WHERE gid='" + gameId + "' AND (uid_1='" + userId + "' OR uid_2='" + userId + "');";
+    connection.query(updateQueryString, (err, rows, fields) => {
+      if (err) {
+        console.log("Failed to find current game: " + err + "\n");
+        // TODO: define behavior/action for error
+        return;
+      }
+
+      console.log("\nSuccessfully left current game!\n");
+      res.redirect('../lobby');
+
+    });
+    connection.end();
+
+  } else {
+    res.redirect('../login');
+  }
+});
+
 router.get('/state', function (req, res, next) {
   if (req.isAuthenticated()) {
     // TEMP: wait for game id to be stored in front end
-    let gameId = 10000;
+    let gameId = 10001; // for use with: uid=1 => bob123
     let queryString = "SELECT `game_state` FROM `game` WHERE gid = " + gameId + ";";
     let connection = getConnection();
 
@@ -150,15 +183,13 @@ router.get('/state', function (req, res, next) {
         return;
       }
 
-      let queryResult = rows; // results
-      let queryResultString = JSON.stringify(rows); // results as string
-      console.log("\nQuery result:\n" + queryResultString); // test print
-      let state = queryResult[0].game_state; // game state
-      console.log("\nGame state for gid = " + gameId + ": \n" + state + "\n"); // test print
+      let gameState = rows[0].game_state; // game attributes
+      console.log("\nGame state for gid = " + gameId + ": \n" + gameState + "\n"); // test print
 
       // TODO: front end use jquery + ajax to update game state without page refresh
-      res.send(state); // temporary
+      res.send(gameState); // temporary
     });
+    connection.end();
   } else {
     res.redirect('../login');
   }
@@ -167,14 +198,14 @@ router.get('/state', function (req, res, next) {
 router.post('/state', function (req, res, next) {
   if (req.isAuthenticated()) {
     // TEMP: wait for game id to be stored in front end
-    let gameId = 10000;
+    let gameId = 10001; // for use with: uid=1 => bob123
     //let gameState = req.body.fen;
-    // TEMP: currently replaces '1' with '0' at the end of the string
-    let gameState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
-    let queryString = "UPDATE `game` SET `game_state` = \'" + gameState + "\' WHERE gid = \'" + gameId + "\';";
-    console.log("\nQuery string: " + queryString + "\n"); // test print
-    let connection = getConnection();
 
+    // TEMP: currently replaces '1' with '0' at the end of the string
+    // "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" -> "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"
+    let gameState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"; // TEMP
+    let queryString = "UPDATE `game` SET `game_state` = \'" + gameState + "\' WHERE gid = \'" + gameId + "\';";
+    let connection = getConnection();
     connection.query(queryString, (err, rows, fields) => {
       if (err) {
         console.log("Failed to update game state: " + err + "\n");
@@ -185,6 +216,7 @@ router.post('/state', function (req, res, next) {
       console.log("\nGame state update successful for gid = " + gameId + "!\n");
       res.send("Temporary only!");
     });
+    connection.end();
   } else {
     res.redirect('../login');
   }
