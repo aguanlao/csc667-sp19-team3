@@ -26,35 +26,97 @@ router.get('/', function (req, res, next) {
   }
 });
 
-function getGameData(data, callback) {
-  var game_id = 10001;
+// Queries the database for the game id's data
+async function getGameData(gid) {
 
-  var is_active, uid_1, uid_2;
+    return new Promise(function(resolve, reject) {
+      const connection = getConnection()
 
-  var queryString = 'SELECT * FROM game WHERE gid LIKE \'';
-  queryString = queryString + game_id + "';";
+      var queryString = 'SELECT * FROM game WHERE gid LIKE \'';
+      queryString = queryString + gid + "';";
 
-  var connection = getConnection();
-  connection.query(queryString, function(err, result) {
-    if (err) {
-      console.log("Failed to find game: " + err + "\n");
-      res.redirect('/lobby');
-      return;
-    }
+      connection.query(queryString, function(err, result) {
+        if (err) {
+          console.log("Failed to find game: " + err + "\n");
+          connection.end()
+          reject(null);
+        }
+    
+        // No game found
+        if (!result.length) {
+          console.log("Failed to find game: " + err + "\n");
+          connection.end()
+          reject(null);
+        }
+    
+        is_active = result[0].is_active;
+        uid_1 = result[0].uid_1;
+        uid_2 = result[0].uid_2;
+        console.log("FINISHED GET QUERY");
+        data = {"is_active": is_active, "uid_1": uid_1, "uid_2": uid_2};
+        connection.end();
+        resolve(data);
+      });
+      console.log("Finishing getting game data...")
+    });
+}
 
-    // No game found
-    if (!result.length) {
-      console.log("Failed to find game: " + err + "\n");
-      res.redirect('/lobby');
-      return;
-    }
+// Updates target of game with gid with user
+async function updateGamePlayer(req, gid, target) {
 
+  return new Promise(function(resolve, reject) {
+    const connection = getConnection()
 
-    is_active = rows[0].is_active;
-    uid_1 = rows[0].uid_1;
-    uid_2 = rows[0].uid_2;
+    const queryString = "UPDATE game SET " + target + "='" + req.user.uid + "' WHERE gid=" + gid + ";";
+
+    connection.query(queryString, (err, rows, fields) => {      
+      if (err) {
+        console.log("Failed to update game user: " + err + "\n");
+        connection.end();
+        reject();
+      } else {
+        console.log("Successfully updated game!");
+        connection.end();
+        resolve();
+      }
+    });
+    
+    console.log("Finishing updating game data...")
   });
-};
+}
+
+async function connectToGame(req, res, game_id) {
+  let game_data = await getGameData(game_id)
+    .catch((err) => console.log(err));
+  console.log(game_data);
+  
+  // Determine where to place current user
+  var target;
+  var uid_1 = game_data.uid_1;
+  var uid_2 = game_data.uid_2;
+
+  // TODO: Update game is_active flag
+  // If user already in the game, else if creating a new game, 
+  // else if joining an existing game, else game is full
+  if(uid_1 == req.user.uid || uid_2 == req.user.uid) {
+    console.log("User already in this game. Redirecting...");
+    // TODO: redirect to specific game instance
+    res.redirect('/game');
+  } else if(uid_1 == null) {
+    console.log("New room created. Adding user " + req.user.username);
+    target = "uid_1";
+    let update = await updateGamePlayer(req, game_id, target)
+    .catch((err) => console.log(err))
+  } else if(uid_2 == null) {
+    console.log("Joining an existing room. Adding user " + req.user.username);
+    target = "uid_2";
+    let update = await updateGamePlayer(req, game_id, target)
+    .catch((err) => console.log(err))
+  } else {
+    console.log("Room is full. Returning to lobby.");
+    res.redirect('/lobby');
+  }
+}
 
 // TODO
 // - add game routes
@@ -63,74 +125,10 @@ router.get('/connect', function(req, res, next) {
   if (req.isAuthenticated()) {
     // TODO: Get game_id when connecting
     // var game_id = req.body.gid;
-    var game_id = 10001;
+    var game_id = 10002;
+    connectToGame(req, res, game_id).catch((err) => console.log(err))
 
-    var is_active, uid_1, uid_2;
-
-    var queryString = 'SELECT * FROM game WHERE gid LIKE \'';
-    queryString = queryString + game_id + "';";
-
-    var connection = getConnection();
-    connection.query(queryString, function(err, result) {
-      if (err) {
-        console.log("Failed to connect to game: " + err + "\n");
-        res.redirect('/lobby');
-        return;
-      }
-
-      // No game found
-      if (!result.length) {
-        console.log("Failed to connect to game: " + err + "\n");
-        res.redirect('/lobby');
-        return;
-      }
-
-      console.log("Game found! Connecting...\n");
-      // console.log("Game: " + rows[0].gid + " P1_id: " + rows[0].uid_1 + " P2_id: " + rows[0].uid_2);
-
-      is_active = rows[0].is_active;
-      uid_1 = rows[0].uid_1;
-      uid_2 = rows[0].uid_2;
-    });
-    console.log("Game: " + game_id + " P1_id: " + uid_1 + " P2_id: " + uid_2);
-    var target;
-    // TODO: Update game is_active flag
-    // If user already in the game, else if creating a new game, 
-    // else if joining an existing game, else game is full
-    if(uid_1 == req.user || uid_2 == req.user) {
-      console.log("User already in this game. Redirecting...");
-      connection.end();
-      // TODO: redirect to specific game instance
-      res.redirect('/game');
-    } else if(uid_1 == null) {
-      console.log("New room created. Adding user " + req.user);
-      target = "uid_1";
-    } else if(uid_2 == null) {
-      console.log("Joining an existing room. Adding user " + req.user);
-      target = "uid_2";
-    } else {
-      console.log("Room is full. Returning to lobby.");
-      connection.end();
-      res.redirect('/lobby');
-    }
-
-    queryString = "UPDATE game SET " + target + "='" + req.user + "' WHERE gid=" + game_id + ";";
-  
-    connection.query(queryString, (err, rows, fields) => {
-      console.log(queryString); 
-      
-      if (err) {
-        console.log("Failed to connect user to game: " + err + "\n");
-        return;
-      }
-
-      console.log("Successfully updated game!");
-    });
-    
-    connection.end();
-
-    // TODO: Maybe change route to connect to the game instance?
-    res.render('game', { title: 'Game' , user: req.user});
+    // res.render('game', { title: 'Game' , user: req.user.username});
   } else {
     res.redirect('/login');
   }
