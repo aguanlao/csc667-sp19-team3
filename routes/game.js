@@ -197,11 +197,11 @@ router.post('/state', function (req, res, next) {
   if (req.isAuthenticated()) {
     // TEMP: wait for game id to be stored in front end
     let gameId = 10001; // for use with: uid=1 => bob123
-    //let gameState = req.body.fen;
+    let gameState = req.body.status;
 
     // TEMP: currently replaces '1' with '0' at the end of the string
     // "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" -> "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"
-    let gameState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"; // TEMP
+    //let gameState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"; // TEMP
     let queryString = "UPDATE `game` SET `game_state` = \'" + gameState + "\' WHERE gid = \'" + gameId + "\';";
     let connection = getConnection();
     connection.query(queryString, (err, rows, fields) => {
