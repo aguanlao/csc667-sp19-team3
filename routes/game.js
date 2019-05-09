@@ -20,7 +20,13 @@ app.use('/game', router);
 router.get('/', function (req, res, next) {
   if (req.isAuthenticated()) {
     const username = req.user.username;
-    res.render('game', { title: 'Game', user: username });
+    const connection = getConnection()
+    var game_id = 10001;
+    var queryString = "SELECT * FROM game WHERE gid LIKE " + game_id + ";";
+    connection.query(queryString, function(err, result) {
+      state = result[0].game_state;
+      res.render('game', { title: 'Game', user: username, state: state});
+    });
   } else {
     res.redirect('/login');
   }
