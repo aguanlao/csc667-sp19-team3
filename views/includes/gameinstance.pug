@@ -1,15 +1,15 @@
-div(class='d-flex flex-column justify-content-center align-items-center shadow bg-dark p-3 mb-2')
-  div(class='flex-row h-75 w-75 m-0 mb-1 p-0 overflow-auto' type='text/html' id='board' ) 
-  div(class='alert alert-primary w-75 m-0 mb-3 pb-0 text-center align-items-center small')
+div(class="container shadow bg-dark d-flex flex-column justify-content-center align-items-center p-3 mb-2 w-100")
+  div(class="w3-row")
+    div(class="w3-col") 
+    div(class="w3-col 3-container" id="board" style="width: 500px")
+    div(class="w3-col") 
+  div(class='alert alert-primary w-75 m-0 pb-0 text-center align-items-center small')
     p
       | Status: 
       span#status
-  p(name="fen") asdasdasd
-    //-
-      p
-        | FEN: 
-        //- span#fen
-        span(id="fen")
+
+  p
+    span#fen
       //- p
       //-   | pgn: 
       //-   span#pgn
@@ -97,7 +97,11 @@ script.
       };
       
       var onSnapEnd = function() {
-        board.position(game.fen());
+        //- board.position('rnbqkbnr/p1pppppp/8/1p6/P2P4/8/1PP1PPPP/RNBQKBNR b KQkq d3 0 2')
+        board.position(game.fen())
+
+        //- $.ajax({method:'GET', url: 'game/state')}
+
       };
       
       var updateStatus = function() {
@@ -107,7 +111,7 @@ script.
         if (game.turn() === 'b') {
           moveColor = 'Black';
 
-          console.log("black turn")
+          //- console.log("black turn")
 
         }
         // checkmate?
@@ -133,15 +137,21 @@ script.
         fenEl.html(game.fen());
         pgnEl.html(game.pgn());
 
-        $.ajax({method:'POST', url: 'game/state', data: {status: game.fen()}, success: function(data){ alert(data); }, error: function(xhr, desc, err){console.log(err);}
-        });
+        $.ajax({method:'POST',
+           url: 'game/state', 
+        data: {status: game.fen()}, 
+        //- success: function(data){ alert(data); }, 
+        //- error: function(xhr, desc, err){console.log(err);}
 
+        });
 
       };
 
       var cfg = {
         draggable: true,
         position: 'start',
+        
+        //- position: 'rnbqkbnr/p1pppppp/8/8/2p5/P7/1P1PPPPP/RNBQKBNR w KQkq - 0 3',
         onDragStart: onDragStart,
         onDrop: onDrop,
         onMouseoutSquare: onMouseoutSquare,
@@ -149,6 +159,6 @@ script.
         onSnapEnd: onSnapEnd
         };
       board = ChessBoard('board', cfg);
-      updateStatus();
+      //- updateStatus();
 
       

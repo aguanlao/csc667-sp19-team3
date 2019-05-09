@@ -214,7 +214,7 @@ router.post('/state', function (req, res, next) {
       }
 
       console.log("\nGame state update successful for gid = " + gameId + "!\n");
-      res.send("Temporary only!");
+      // res.send("Temporary nly!");
     });
     connection.end();
   } else {
