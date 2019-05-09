@@ -20,7 +20,13 @@ app.use('/game', router);
 router.get('/', function (req, res, next) {
   if (req.isAuthenticated()) {
     const username = req.user.username;
-    res.render('game', { title: 'Game', user: username });
+    const connection = getConnection()
+    var game_id = 10001;
+    var queryString = "SELECT * FROM game WHERE gid LIKE " + game_id + ";";
+    connection.query(queryString, function(err, result) {
+      state = result[0].game_state;
+      res.render('game', { title: 'Game', user: username, state: state});
+    });
   } else {
     res.redirect('/login');
   }
@@ -125,7 +131,7 @@ router.get('/connect', function(req, res, next) {
   if (req.isAuthenticated()) {
     // TODO: Get game_id when connecting
     // var game_id = req.body.gid;
-    var game_id = 10002;
+    var game_id = 10001;
     connectToGame(req, res, game_id).catch((err) => console.log(err))
 
     // res.render('game', { title: 'Game' , user: req.user.username});
@@ -197,12 +203,51 @@ router.post('/state', function (req, res, next) {
   if (req.isAuthenticated()) {
     // TEMP: wait for game id to be stored in front end
     let gameId = 10001; // for use with: uid=1 => bob123
-    let gameState = req.body.status;
-
+    // let gameState = req.body.status;
+    // if(gameState == '')
+      // let gameState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    // else 
+      let gameState = req.body.status;
+    
     // TEMP: currently replaces '1' with '0' at the end of the string
     // "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" -> "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"
     //let gameState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"; // TEMP
     let queryString = "UPDATE `game` SET `game_state` = \'" + gameState + "\' WHERE gid = \'" + gameId + "\';";
+    let connection = getConnection();
+    connection.query(queryString, (err, rows, fields) => {
+      if (err) {
+        console.log("Failed to update game state: " + err + "\n");
+        // TODO: define behavior/action for error
+        return;
+      }
+
+      console.log("\nGame state update successful for gid = " + gameId + "!\n");
+      // res.send("Temporary nly!");
+    });
+    connection.end();
+  } else {
+    res.redirect('../login');
+  }
+
+});
+
+
+router.post('/state', function (req, res, next) {
+  if (req.isAuthenticated()) {
+    let gidID = 1;
+    let is_active = 1;
+    let create_time = 0;
+    let uid_1 = u1;
+    let uid_2 = u2;
+    let gameId = 10001; // for use with: uid=1 => bob123
+      let gameState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    // else 
+      // let gameState = req.body.status;
+    
+    // TEMP: currently replaces '1' with '0' at the end of the string
+    // "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" -> "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"
+    //let gameState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"; // TEMP
+    let queryString = "INSERT INTO `game` VALUES (gid=2)";
     let connection = getConnection();
     connection.query(queryString, (err, rows, fields) => {
       if (err) {

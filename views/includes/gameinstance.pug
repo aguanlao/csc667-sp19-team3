@@ -25,14 +25,13 @@ div(class='card bg-light w-100')
           h5 vs.
       div(class='col-5')
         div(class='d-flex justify-content-around')
-          h5(id="player2_turn") Player 2
+          h5(id="player2_turn") !{state}
 
 
 script.
+      var state = "!{state}";
       var board,
       game = new Chess(),
-      state = 'rnbqkbnr/pp2pp2/8/2ppP1pp/PP4P1/8/2PP1P1P/RNBQKBNR b KQkq - 0 5',
-      //- state = 'rnbqkbnr/p1pppppp/8/1p6/P2P4/8/1PP1PPPP/RNBQKBNR b KQkq d3 0 2',
       statusEl = $('#status'),
       fenEl = $('#fen'),
       pgnEl = $('#pgn');
@@ -145,10 +144,8 @@ script.
 
         });
 
-        //- state: 'rnbqkbnr/p1p1p2p/5P2/1p1p2p1/P6P/8/1PPP1PP1/RNBQKBNR b KQkq - 0 5';
-        //- game.load(game.fen());
       };
-
+      
       var cfg = {
         draggable: true,
         position: state,
@@ -159,7 +156,8 @@ script.
         onSnapEnd: onSnapEnd
         };
       
-      game.load(state);
       board = ChessBoard('board', cfg);
+      game.load(state);
       updateStatus();
+      
       
