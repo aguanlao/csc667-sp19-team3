@@ -16,17 +16,22 @@ function getConnection() {
 };
 
 app.use('/game', router);
+app.use('/create_lobby', create_chess_table);
 
 router.get('/', function (req, res, next) {
   if (req.isAuthenticated()) {
     const username = req.user.username;
     const connection = getConnection()
+
+    // Need to create a random chess table/ game_id
     var game_id = 10001;
+    // var game_state = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
     var queryString = "SELECT * FROM game WHERE gid LIKE " + game_id + ";";
     connection.query(queryString, function(err, result) {
       state = result[0].game_state;
       res.render('game', { title: 'Game', user: username, state: state});
     });
+    // console.log("create a new chess table")
   } else {
     res.redirect('/login');
   }
@@ -232,23 +237,24 @@ router.post('/state', function (req, res, next) {
 });
 
 
-router.post('/state', function (req, res, next) {
+
+
+create_chess_table.post('/', function (req, res, next) {
   if (req.isAuthenticated()) {
-    let gidID = 1;
-    let is_active = 1;
-    let create_time = 0;
-    let uid_1 = u1;
-    let uid_2 = u2;
-    let gameId = 10001; // for use with: uid=1 => bob123
-      let gameState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    // else 
-      // let gameState = req.body.status;
+
+    //Set this to random number on chess.js
+    // var gameID = req.body.gameNum
+    var gameID = req.body.gameId
+    var is_active = 0
+    var Game_State = req.body.game_state
+    var Create_time = 0
+    var UserId1 = req.user.username
+    var UserId2 = ''
+    // var UserId2 = req.body.uid_2
     
-    // TEMP: currently replaces '1' with '0' at the end of the string
-    // "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" -> "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"
-    //let gameState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"; // TEMP
-    let queryString = "INSERT INTO `game` VALUES (gid=2)";
-    let connection = getConnection();
+    const queryString = `INSERT INTO game (gid, is_active, game_state, create_time, uid_1, uid_2) VALUES ({req.body.gameId},0,req.body.game_state,'0',0,0)`
+        
+    // VALUES (gameID , is_active, Game_State, Create_time, UserId1 , UserId2)`
     connection.query(queryString, (err, rows, fields) => {
       if (err) {
         console.log("Failed to update game state: " + err + "\n");
@@ -256,13 +262,49 @@ router.post('/state', function (req, res, next) {
         return;
       }
 
-      console.log("\nGame state update successful for gid = " + gameId + "!\n");
+      console.log("chess table is created");
       // res.send("Temporary nly!");
     });
     connection.end();
   } else {
     res.redirect('../login');
   }
+
 });
+
+// an example fetching to the gameID that created when user click to create game
+
+// router.post('/state', function (req, res, next) {
+//   if (req.isAuthenticated()) {
+
+      // this will take value from joining game.
+
+
+//     let gameId = req.body.randomID; 
+//     let gameState = req.body.status;
+
+
+//     // TEMP: currently replaces '1' with '0' at the end of the string
+//     // "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" -> "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"
+//     //let gameState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"; // TEMP
+//     let queryString = "UPDATE `game` SET `game_state` = \'" + gameState + "\' WHERE gid = \'" + gameId + "\';";
+//     let connection = getConnection();
+//     connection.query(queryString, (err, rows, fields) => {
+//       if (err) {
+//         console.log("Failed to update game state: " + err + "\n");
+//         // TODO: define behavior/action for error
+//         return;
+//       }
+
+//       console.log("\nGame state update successful for gid = " + gameId + "!\n");
+//       // res.send("Temporary nly!");
+//     });
+//     connection.end();
+//   } else {
+//     res.redirect('../login');
+//   }
+
+// });
+
 
 module.exports = router;
