@@ -33,6 +33,7 @@ div(class='card bg-light w-100')
 script.
       var board,
       game = new Chess(),
+      state = '4r3/8/2p2PPk/1p2B3/pP4R1/P2rp3/2P2K2/8 w - - 0 47',
       statusEl = $('#status'),
       fenEl = $('#fen'),
       pgnEl = $('#pgn');
@@ -149,9 +150,7 @@ script.
 
       var cfg = {
         draggable: true,
-        position: 'start',
-        
-        //- position: 'rnbqkbnr/p1pppppp/8/8/2p5/P7/1P1PPPPP/RNBQKBNR w KQkq - 0 3',
+        position: state,
         onDragStart: onDragStart,
         onDrop: onDrop,
         onMouseoutSquare: onMouseoutSquare,
@@ -159,6 +158,5 @@ script.
         onSnapEnd: onSnapEnd
         };
       board = ChessBoard('board', cfg);
-      //- updateStatus();
-
+      game.load(state);
       
