@@ -16,7 +16,7 @@ function getConnection() {
 };
 
 app.use('/game', router);
-app.use('/create_lobby', create_chess_table);
+// app.use('/create_lobby', create_chess_table);
 
 router.get('/', function (req, res, next) {
   if (req.isAuthenticated()) {
@@ -239,38 +239,38 @@ router.post('/state', function (req, res, next) {
 
 
 
-create_chess_table.post('/', function (req, res, next) {
-  if (req.isAuthenticated()) {
+// create_chess_table.post('/', function (req, res, next) {
+//   if (req.isAuthenticated()) {
 
-    //Set this to random number on chess.js
-    // var gameID = req.body.gameNum
-    var gameID = req.body.gameId
-    var is_active = 0
-    var Game_State = req.body.game_state
-    var Create_time = 0
-    var UserId1 = req.user.username
-    var UserId2 = ''
-    // var UserId2 = req.body.uid_2
+//     //Set this to random number on chess.js
+//     // var gameID = req.body.gameNum
+//     var gameID = req.body.gameId
+//     var is_active = 0
+//     var Game_State = req.body.game_state
+//     var Create_time = 0
+//     var UserId1 = req.user.username
+//     var UserId2 = ''
+//     // var UserId2 = req.body.uid_2
     
-    const queryString = `INSERT INTO game (gid, is_active, game_state, create_time, uid_1, uid_2) VALUES ({req.body.gameId},0,req.body.game_state,'0',0,0)`
+//     const queryString = `INSERT INTO game (gid, is_active, game_state, create_time, uid_1, uid_2) VALUES ({req.body.gameId},0,req.body.game_state,'0',0,0)`
         
-    // VALUES (gameID , is_active, Game_State, Create_time, UserId1 , UserId2)`
-    connection.query(queryString, (err, rows, fields) => {
-      if (err) {
-        console.log("Failed to update game state: " + err + "\n");
-        // TODO: define behavior/action for error
-        return;
-      }
+//     // VALUES (gameID , is_active, Game_State, Create_time, UserId1 , UserId2)`
+//     connection.query(queryString, (err, rows, fields) => {
+//       if (err) {
+//         console.log("Failed to update game state: " + err + "\n");
+//         // TODO: define behavior/action for error
+//         return;
+//       }
 
-      console.log("chess table is created");
-      // res.send("Temporary nly!");
-    });
-    connection.end();
-  } else {
-    res.redirect('../login');
-  }
+//       console.log("chess table is created");
+//       // res.send("Temporary nly!");
+//     });
+//     connection.end();
+//   } else {
+//     res.redirect('../login');
+//   }
 
-});
+// });
 
 // an example fetching to the gameID that created when user click to create game
 
