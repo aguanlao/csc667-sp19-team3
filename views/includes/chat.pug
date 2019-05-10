@@ -3,11 +3,8 @@ ul(class='nav nav-tabs mb-2')
         a(class='nav-link active' onClick='OpenWorldChat()') World
         a(class='nav-link' onClick='OpenPrivateChat()') Private
 
-div(class='list group h-75 overflow-auto' id="world_chat")
-    div(class='card' id="messages")
-        //- p assasd
-        //- p asdda
-        //- p asdads
+//- div(class='list group h-75' id="world_chat")
+div(class='card overflow-auto' id="messages" style="height: 400px")
 
 
 
@@ -34,9 +31,10 @@ div(class='list group h-75 overflow-auto' id="world_chat")
     //-     small Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
     //-     // example chat block
     //- li(class='list-group-item mb-1')
-        //- div(class='d-flex w-100 justify-content-between')
-        //-     h6(class='mb-0') Name
-        //- small Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
+    //-     div(class='d-flex w-100 justify-content-between')
+    //-         h6(class='mb-0') Name
+    //-     small Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
+
 //- div(class='input-group border-top pt-2')
 //-     input(type='text' class='form-control' placeholder='Message world chat')
 //-     div(class='input-group-append')
@@ -142,5 +140,5 @@ script.
         //- console.log($("#message").val())
 
         var messages_content = $("#messages").html()
-        $("#messages").html(messages_content + '<p>' + '<mb-0>' + $("#message").val())
+        $("#messages").html(messages_content + '<strong>' + 'Thanh: ' + '<small>' + $("#message").val() + '<hr>')
     }
