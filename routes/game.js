@@ -14,7 +14,6 @@ function getConnection() {
         database: process.env.DB_NAME
     });
 };
-
 app.use('/game', router);
 // app.use('/create_lobby', create_chess_table);
 

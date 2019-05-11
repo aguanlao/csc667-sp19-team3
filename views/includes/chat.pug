@@ -4,7 +4,7 @@ ul(class='nav nav-tabs mb-2')
         a(class='nav-link' onClick='OpenPrivateChat()') Private
 
 //- div(class='list group h-75' id="world_chat")
-div(class='card overflow-auto' id="messages" style="height: 400px")
+div(class='card overflow-auto' id="world_chat" style="height: 400px")
 
 
 
@@ -60,13 +60,6 @@ div(class='input-group border-top pt-2' )
     input(type='text' class='form-control' placeholder='Message world chat' id="message")
     div(class='input-group-append')
         button(class='btn btn-outline-primary' onClick='ButtonIsClicked()') Send
-
-
-
-
-
-
-
 
 
 //- div(class='card bg-light' id='private_chat' style='w-100')
@@ -139,6 +132,13 @@ script.
         //- console.log(mes)
         //- console.log($("#message").val())
 
-        var messages_content = $("#messages").html()
-        $("#messages").html(messages_content + '<strong>' + 'Thanh: ' + '<small>' + $("#message").val() + '<hr>')
+    if($("#world_chat").show()){
+        var messages_content_one = $("#world_chat").html()
+        $("#world_chat").html(messages_content_one + '<strong>' + 'Thanh: ' + '<small>' + $("#message").val() + '<hr>')
+    }
+    else{
+        var messages_content_two = $("#private_chat").html()
+        $("#private_chat").html(messages_content_two + '<strong>' + 'Thanh: ' + '<small>' + $("#message").val() + '<hr>')
+    }
+   
     }
