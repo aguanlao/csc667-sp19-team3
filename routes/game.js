@@ -196,11 +196,10 @@ router.get('/', function (req, res, next) {
   }
 });
 
-router.get('/connect', function(req, res, next) {
+router.post('/connect', function(req, res, next) {
   if (req.isAuthenticated()) {
-    // TODO: Get game_id when connecting
-    // var game_id = req.body.gid;
-    const game_id = 10001;
+    const game_id = req.body.game_id;
+    console.log("Attempting to connect to game " + game_id);
     connectToGame(req, res, game_id).catch((err) => console.log(err))
 
     // res.render('game', { title: 'Game' , user: req.user.username});
