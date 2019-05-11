@@ -19,8 +19,11 @@ function getConnection() {
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  const user = req.user;
-  res.render('index', { title: 'Index', user: user});
+  if(req.isAuthenticated()) {
+    res.redirect('/lobby');
+  } else {
+    res.render('index', { title: 'Index'});
+  }
 });
 
 router.get('/login', function(req, res, next) {
@@ -127,10 +130,10 @@ router.post('/register', function(req, res, next) {
 });
 
 router.get('/lobby', function(req, res, next) {
-  console.log('\nUser: ' + req.user.username); // test print
-  console.log('Authenicated: ' + req.isAuthenticated() + '\n'); // test print
-
   if (req.isAuthenticated()) {
+    // TODO: Remove debug statements
+    console.log('\nUser: ' + req.user.username); // test print
+    console.log('Authenicated: ' + req.isAuthenticated() + '\n'); // test print
     const username = req.user.username;
     res.render('lobby', {title: 'Lobby', user: username});
   } else {
