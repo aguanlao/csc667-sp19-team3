@@ -176,10 +176,10 @@ router.get('/', function (req, res, next) {
 
       // Determine uid of other player & current user color
       let otherUid = uid_1;
-      let color = 'black';
+      let color = 'b';
       if(userId ===  uid_1) {
         otherUid = uid_2;
-        color = 'white';
+        color = 'w';
       } 
 
       res.render('game', { 

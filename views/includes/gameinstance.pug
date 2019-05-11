@@ -19,16 +19,25 @@ div(class='card bg-light w-100')
     div(class='row')
       div(class='col-5')
         div(class='d-flex justify-content-around')
-          h5(id="player1_turn") Player 1
+          h5(id="player1_turn") Player !{uid}
+          if color === 'w'
+            p White
+          else
+            p Black
       div(class='col-2 border-right border-left')
         div(class='d-flex justify-content-around')
           h5 vs.
       div(class='col-5')
         div(class='d-flex justify-content-around')
-          h5(id="player2_turn") !{state}
+          h5(id="player2_turn") Player !{otherUser}
+          if color === 'w'
+            p Black
+          else
+            p White
 
 
 script.
+      const userColor = '!{color}';
       var state = "!{state}";
       var board,
       game = new Chess(),
@@ -51,9 +60,12 @@ script.
       var onDragStart = function(source, piece) {
       // do not pick up pieces if the game is over
       // or if it's not that side's turn
+      // or if it's not the user's color
         if (game.game_over() === true ||
           (game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-          (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+          (game.turn() === 'b' && piece.search(/^w/) !== -1) ||
+          (userColor === 'w' && piece.search(/^b/) !== -1) || 
+          (userColor === 'b' && piece.search(/^w/) !== -1)) {
         return false;
         }
       };
@@ -110,9 +122,6 @@ script.
         var moveColor = 'White';
         if (game.turn() === 'b') {
           moveColor = 'Black';
-
-          //- console.log("black turn")
-
         }
         // checkmate?
         if (game.in_checkmate() === true) {
