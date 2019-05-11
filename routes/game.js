@@ -22,7 +22,7 @@ async function getUserData(uid) {
   return new Promise(function(resolve, reject) {
     const connection = getConnection()
 
-    var queryString = 'SELECT * FROM user WHERE uid LIKE \'';
+    let queryString = 'SELECT * FROM user WHERE uid LIKE \'';
     queryString = queryString + uid + "';";
 
     connection.query(queryString, function(err, result) {
@@ -54,7 +54,7 @@ async function getGameData(gid) {
     return new Promise(function(resolve, reject) {
       const connection = getConnection()
 
-      var queryString = 'SELECT * FROM game WHERE gid LIKE \'';
+      let queryString = 'SELECT * FROM game WHERE gid LIKE \'';
       queryString = queryString + gid + "';";
 
       connection.query(queryString, function(err, result) {
@@ -114,9 +114,9 @@ async function connectToGame(req, res, game_id) {
   console.log(game_data);
   
   // Determine where to place current user
-  var target;
-  var uid_1 = game_data.uid_1;
-  var uid_2 = game_data.uid_2;
+  let target;
+  let uid_1 = game_data.uid_1;
+  let uid_2 = game_data.uid_2;
 
   // TODO: Update game is_active flag
   // If user already in the game, else if creating a new game, 
@@ -153,8 +153,8 @@ router.get('/', function (req, res, next) {
 
     // TODO: Need to create a random chess table/ game_id
     // May want to use a function for query
-    var game_id = 10001;
-    var queryString = "SELECT * FROM game WHERE gid LIKE " + game_id + ";";
+    const game_id = 10001;
+    const queryString = "SELECT * FROM game WHERE gid LIKE " + game_id + ";";
     connection.query(queryString, function(err, result) {
       if (err || !result.length) {
         console.log("Failed to lookup game state: " + err + "\n");
@@ -200,7 +200,7 @@ router.get('/connect', function(req, res, next) {
   if (req.isAuthenticated()) {
     // TODO: Get game_id when connecting
     // var game_id = req.body.gid;
-    var game_id = 10001;
+    const game_id = 10001;
     connectToGame(req, res, game_id).catch((err) => console.log(err))
 
     // res.render('game', { title: 'Game' , user: req.user.username});
