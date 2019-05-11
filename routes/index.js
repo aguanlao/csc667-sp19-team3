@@ -148,7 +148,11 @@ router.get('/mylobbies', function(req, res, next) {
 });
 
 router.get('/create_lobby', function(req, res, next) {
-  res.render('create_lobby', { title: 'Lobby' });
+  if (req.isAuthenticated()) {
+    res.render('create_lobby', { title: 'Create Lobby', user: req.user.username });
+  } else {
+    res.redirect('/login');
+  }
 });
 
 

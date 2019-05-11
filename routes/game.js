@@ -16,7 +16,6 @@ function getConnection() {
 };
 
 app.use('/game', router);
-// app.use('/create_lobby', create_chess_table);
 
 // Queries the database for the user id's data
 async function getUserData(uid) {
@@ -143,6 +142,7 @@ async function connectToGame(req, res, game_id) {
 }
 
 // Game routes
+
 router.get('/', function (req, res, next) {
   if (req.isAuthenticated()) {
     const username = req.user.username;
@@ -300,75 +300,34 @@ router.post('/state', function (req, res, next) {
 
 });
 
+router.post('/create', function (req, res, next) {
+  if (req.isAuthenticated()) {
+    const userId = req.user.uid;
+    const lobbyTitle = req.body.lobbyTitle;
 
+    let queryString = "INSERT INTO game (`uid_1`) VALUES ('" + userId + "');";
+    // Add lobby title if specified
+    if (lobbyTitle) {
+      queryString = "INSERT INTO game (`uid_1`, `title`) VALUES ('";
+      queryString = queryString + userId + "', '" + lobbyTitle + "');";
+    }
 
+    let connection = getConnection();
+    connection.query(queryString, (err, rows, fields) => {
+      if (err) {
+        console.log("Failed to create game: " + err + "\n");
+        res.redirect('/lobby');
+        return;
+      }
 
-// create_chess_table.post('/', function (req, res, next) {
-//   if (req.isAuthenticated()) {
+      console.log("Successfully created new game!");
+      res.render('create_lobby', { title: 'Lobby Created', user: req.user.username, gameCreated: true });
+    });
+    connection.end();
+  } else {
+    res.redirect('/login');
+  }
 
-//     //Set this to random number on chess.js
-//     // var gameID = req.body.gameNum
-//     var gameID = req.body.gameId
-//     var is_active = 0
-//     var Game_State = req.body.game_state
-//     var Create_time = 0
-//     var UserId1 = req.user.username
-//     var UserId2 = ''
-//     // var UserId2 = req.body.uid_2
-    
-//     const queryString = `INSERT INTO game (gid, is_active, game_state, create_time, uid_1, uid_2) VALUES ({req.body.gameId},0,req.body.game_state,'0',0,0)`
-        
-//     // VALUES (gameID , is_active, Game_State, Create_time, UserId1 , UserId2)`
-//     connection.query(queryString, (err, rows, fields) => {
-//       if (err) {
-//         console.log("Failed to update game state: " + err + "\n");
-//         // TODO: define behavior/action for error
-//         return;
-//       }
-
-//       console.log("chess table is created");
-//       // res.send("Temporary nly!");
-//     });
-//     connection.end();
-//   } else {
-//     res.redirect('../login');
-//   }
-
-// });
-
-// an example fetching to the gameID that created when user click to create game
-
-// router.post('/state', function (req, res, next) {
-//   if (req.isAuthenticated()) {
-
-      // this will take value from joining game.
-
-
-//     let gameId = req.body.randomID; 
-//     let gameState = req.body.status;
-
-
-//     // TEMP: currently replaces '1' with '0' at the end of the string
-//     // "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" -> "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"
-//     //let gameState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"; // TEMP
-//     let queryString = "UPDATE `game` SET `game_state` = \'" + gameState + "\' WHERE gid = \'" + gameId + "\';";
-//     let connection = getConnection();
-//     connection.query(queryString, (err, rows, fields) => {
-//       if (err) {
-//         console.log("Failed to update game state: " + err + "\n");
-//         // TODO: define behavior/action for error
-//         return;
-//       }
-
-//       console.log("\nGame state update successful for gid = " + gameId + "!\n");
-//       // res.send("Temporary nly!");
-//     });
-//     connection.end();
-//   } else {
-//     res.redirect('../login');
-//   }
-
-// });
-
+});
 
 module.exports = router;
