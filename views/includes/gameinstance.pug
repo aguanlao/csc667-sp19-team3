@@ -70,7 +70,8 @@ script.
       
         // illegal move
         if (move === null) return 'snapback';
-          updateStatus();
+        
+        updateStatus();
       };
 
 
@@ -158,6 +159,7 @@ script.
       
       board = ChessBoard('board', cfg);
       game.load(state);
+      // TODO: Replace with display status, to not send POST request on game load
       updateStatus();
       
       

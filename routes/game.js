@@ -18,24 +18,36 @@ function getConnection() {
 app.use('/game', router);
 // app.use('/create_lobby', create_chess_table);
 
-router.get('/', function (req, res, next) {
-  if (req.isAuthenticated()) {
-    const username = req.user.username;
+// Queries the database for the user id's data
+async function getUserData(uid) {
+  return new Promise(function(resolve, reject) {
     const connection = getConnection()
 
-    // Need to create a random chess table/ game_id
-    var game_id = 10001;
-    // var game_state = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-    var queryString = "SELECT * FROM game WHERE gid LIKE " + game_id + ";";
+    var queryString = 'SELECT * FROM user WHERE uid LIKE \'';
+    queryString = queryString + uid + "';";
+
     connection.query(queryString, function(err, result) {
-      state = result[0].game_state;
-      res.render('game', { title: 'Game', user: username, state: state});
+      if (err) {
+        console.log("Failed to find user: " + err + "\n");
+        connection.end()
+        reject(null);
+      }
+  
+      // No user found
+      if (!result.length) {
+        console.log("Failed to find user: User " + uid + " does not exist.\n");
+        connection.end()
+        reject(null);
+      }
+  
+
+      data = {'username': result[0].username, 'uid': result[0].uid};
+      connection.end();
+      resolve(data);
+      console.log("Finished getting user data")
     });
-    // console.log("create a new chess table")
-  } else {
-    res.redirect('/login');
-  }
-});
+  });  
+}
 
 // Queries the database for the game id's data
 async function getGameData(gid) {
@@ -96,6 +108,7 @@ async function updateGamePlayer(req, gid, target) {
   });
 }
 
+// Attempts to connect current user to game
 async function connectToGame(req, res, game_id) {
   let game_data = await getGameData(game_id)
     .catch((err) => console.log(err));
@@ -129,8 +142,59 @@ async function connectToGame(req, res, game_id) {
   }
 }
 
-// TODO
-// - add game routes
+// Game routes
+router.get('/', function (req, res, next) {
+  if (req.isAuthenticated()) {
+    const username = req.user.username;
+    const userId = req.user.uid;
+    const connection = getConnection()
+
+    console.log("Getting state in game/");
+
+    // TODO: Need to create a random chess table/ game_id
+    // May want to use a function for query
+    var game_id = 10001;
+    var queryString = "SELECT * FROM game WHERE gid LIKE " + game_id + ";";
+    connection.query(queryString, function(err, result) {
+      if (err || !result.length) {
+        console.log("Failed to lookup game state: " + err + "\n");
+        // TODO: define behavior/action for error
+        return;
+      }
+
+      const state = result[0].game_state;
+      const uid_1 = result[0].uid_1;
+      const uid_2 = result[0].uid_2;
+
+      // Redirect if current user is not in the game
+      if(userId !== uid_1 && userId !== uid_2) {
+        // TODO: Send proper http response code
+        console.log("You're not in this game.");
+        res.redirect('/lobby');
+        return;
+      }
+
+      // Determine uid of other player & current user color
+      let otherUid = uid_1;
+      let color = 'black';
+      if(userId ===  uid_1) {
+        otherUid = uid_2;
+        color = 'white';
+      } 
+
+      res.render('game', { 
+        title: 'Game', 
+        user: username,
+        color: color, 
+        uid: userId, 
+        otherUser: otherUid, 
+        state: state
+      });
+    });
+  } else {
+    res.redirect('/login');
+  }
+});
 
 router.get('/connect', function(req, res, next) {
   if (req.isAuthenticated()) {
