@@ -158,9 +158,35 @@ router.get('/lobby', function(req, res, next) {
 });
 
 router.get('/mylobbies', function(req, res, next) {
+  // if (req.isAuthenticated()) {
+  //   const username = req.user.username;
+  //   res.render('lobby', { title: 'Lobby' , user: username});
+  // } else {
+  //   res.redirect('/login');
+  // }
   if (req.isAuthenticated()) {
+    // TODO: Remove debug statements
+    console.log('\nUser: ' + req.user.username); // test print
+    console.log('Authenicated: ' + req.isAuthenticated() + '\n'); // test print
     const username = req.user.username;
-    res.render('lobby', { title: 'Lobby' , user: username});
+    const userId = req.user.uid;
+
+    // Get all games needing a player or in progress
+    const queryString = "SELECT * FROM game WHERE (is_active=0 OR is_active=1) AND (uid_1=" + userId + " OR uid_2=" + userId + ");";
+    
+    var connection = getConnection();
+    connection.query(queryString, (err, rows, fields) => {
+      if (err) {
+        console.log("Failed to get lobbies: " + err + "\n");
+        // TODO: Send proper HTTP response code
+        return;
+      }
+
+      console.log("Lobbies count: " + rows.length + "\n");
+  
+      res.render('lobby', {title: 'Lobby', user: username, lobbies: rows});
+    });
+    connection.end();
   } else {
     res.redirect('/login');
   }
@@ -176,7 +202,11 @@ router.get('/create_lobby', function(req, res, next) {
 
 
 router.get('/about', function(req, res, next) {
-  res.render('about', { title: 'About' });
+  if (req.isAuthenticated()) {
+    res.render('about', { title: 'About', user: req.user.username });
+  } else {
+    res.render('about', {title: 'About'});
+  }
 });
 
 module.exports = router;
