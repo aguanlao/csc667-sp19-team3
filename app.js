@@ -12,6 +12,9 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var gameRouter = require('./routes/game');
 
+
+var message_content = require('./routes/message');
+
 var app = express();
 
 // view engine setup
@@ -40,6 +43,9 @@ app.use(passport.session());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/game', gameRouter);
+
+app.use('/message', message_content);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -9,7 +9,6 @@ div(class='card overflow-auto' id="world_chat" style="height: 400px")
 
 
 
-
     //- li(class='list-group-item mb-1') 
     //-     div(class='d-flex w-100 justify-content-between')
     //-         h6(class='mb-0' ) Name
@@ -135,10 +134,60 @@ script.
     if($("#world_chat").show()){
         var messages_content_one = $("#world_chat").html()
         $("#world_chat").html(messages_content_one + '<strong>' + 'Thanh: ' + '<small>' + $("#message").val() + '<hr>')
-    }
+            
+       	    //- $.post("./message.js", 
+  		  	//-   {message: $("#message").val()} )
+    	  	//-   function(data) { 
+    	   	//-     $("#chat").val(data); 
+    		//-     $("#message").val("");
+
+
+            //- $.post(`/message`)
+            if($("#message").val() != ''){
+                $.ajax({method:'POST',
+                    url: 'message', 
+                    data: {message: $("#message").val()}, 
+                    //- success: function(data){ alert(data); }, 
+                    //- error: function(xhr, desc, err){console.log(err);}
+
+                });
+            }
+
+    
+
+        }
     else{
-        var messages_content_two = $("#private_chat").html()
-        $("#private_chat").html(messages_content_two + '<strong>' + 'Thanh: ' + '<small>' + $("#message").val() + '<hr>')
+            var messages_content_two = $("#private_chat").html()
+            $("#private_chat").html(messages_content_two + '<strong>' + 'Thanh: ' + '<small>' + $("#message").val() + '<hr>')
+        }
+
     }
-   
+
+    function Socket(){
+        this.socket = io()
+
     }
+//- var socket = io();
+//- socket.on(‘message’, addMessages)
+
+    //- $(() => {
+    //- $("#send").click(()=>{
+    //-    sendMessage({
+    //-       name: $("#name").val(), 
+    //-       message:$("#message").val()});
+    //-     })
+    //-   getMessages()
+    //- })
+//- function addMessages(message){
+//-    $(“#messages”).append(`
+//-       <h4> ${message.name} </h4>
+//-       <p>  ${message.message} </p>`)
+//-    }
+//- function getMessages(){
+//-   $.get(‘http://localhost:3000/messages', (data) => {
+//-    data.forEach(addMessages);
+//-    })
+//-  }
+//- function sendMessage(message){
+//-    $.post(‘http://localhost:3000/messages', message)
+//-  }
