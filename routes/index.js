@@ -91,13 +91,12 @@ router.get('/logout', function(req, res, next) {
   req.logout();
   res.redirect('/'); // logout user is redirected to homepage  
 });
-
 /* GET register page. */
 router.get('/register', function(req, res, next) {
   if (!req.isAuthenticated()) {
     res.render('register', { title: 'Register' });
   } else {
-    res.redirect('/'); // TODO: possibly change route
+    res.redirect('/');
   }
 });
 
@@ -139,6 +138,7 @@ router.get('/lobby', function(req, res, next) {
   if (req.isAuthenticated()) {
     //console.log('\nUser: ' + req.user.username); // test print
     //console.log('Authenicated: ' + req.isAuthenticated() + '\n'); // test print
+
     const username = req.user.username;
 
     // Get all games needing a player or in progress
@@ -167,7 +167,24 @@ router.get('/lobby', function(req, res, next) {
 router.get('/mylobbies', function(req, res, next) {
   if (req.isAuthenticated()) {
     const username = req.user.username;
-    res.render('lobby', { title: 'My Lobbies' , user: username});
+    const userId = req.user.uid;
+
+    // Get all games needing a player or in progress
+    const queryString = "SELECT * FROM game WHERE (is_active=0 OR is_active=1) AND (uid_1=" + userId + " OR uid_2=" + userId + ");";
+    
+    var connection = getConnection();
+    connection.query(queryString, (err, rows, fields) => {
+      if (err) {
+        console.log("Failed to get lobbies: " + err + "\n");
+        // TODO: Send proper HTTP response code
+        return;
+      }
+
+      console.log("Lobbies count: " + rows.length + "\n");
+  
+      res.render('lobby', {title: 'Lobby', user: username, lobbies: rows});
+    });
+    connection.end();
   } else {
     res.redirect('/login');
   }
@@ -184,7 +201,11 @@ router.get('/create_lobby', function(req, res, next) {
 
 /* GET about page. */
 router.get('/about', function(req, res, next) {
-  res.render('about', { title: 'About' });
+  if (req.isAuthenticated()) {
+    res.render('about', { title: 'About', user: req.user.username });
+  } else {
+    res.render('about', {title: 'About'});
+  }
 });
 
 module.exports = router;
