@@ -1,0 +1,45 @@
+<html>
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+</head>
+<body>
+  <script type="text/javascript">
+    function update()
+	{
+	  $.post("server.php", {}, function(data) {
+	  	$("#screen").val(data)
+	  });
+
+	  setTimeout('update()', 1000);
+	}
+
+	$(document).ready(
+ 	  function() {
+      	update();
+ 
+     	$("#submit").click(    
+          function() {         
+       	    $.post("./message.php", 
+  		  	  {message: $("#message").val()},
+    	  	  function(data) { 
+    	   	    $("#chat").val(data); 
+    		    $("#message").val("");
+     	  	  }
+    	    );
+      	  }
+     	);
+      });
+  </script>
+
+  <style>
+  #chat {
+  	background: #fff;
+  	color: #333;
+  }
+  </style>
+  <textarea id="chat" cols="50" rows="20" disabled> </textarea> <br>  
+	<input id="message" size="40">
+	<input type="submit" id="submit" value="Submit">
+
+</body>
+</html>

@@ -173,6 +173,7 @@ router.get('/:gameId', function (req, res, next) {
       if (err || !result.length) {
         console.log("Failed to lookup game state: " + err + "\n");
         // TODO: define behavior/action for error
+        res.status(401).send('Failed to look up game state.');
         return;
       }
 
@@ -184,6 +185,7 @@ router.get('/:gameId', function (req, res, next) {
       if(userId !== uid_1 && userId !== uid_2) {
         // TODO: Send proper http response code
         console.log("You're not in this game.");
+        res.status(401).send('401 error: you are not in this game.');
         res.redirect('/lobby');
         return;
       }
@@ -298,6 +300,7 @@ router.get('/leave', function(req, res, next) {
       if (err) {
         console.log("Failed to find current game: " + err + "\n");
         // TODO: define behavior/action for error
+        res.status(404).send('Failed to find current game');
         return;
       }
 
@@ -323,6 +326,8 @@ router.get('/state', function (req, res, next) {
       if (err || !rows.length) {
         console.log("Failed to lookup game state: " + err + "\n");
         // TODO: define behavior/action for error
+        res.status(401);
+        res.send("Failed to lookup game state");
         return;
       }
 
@@ -358,6 +363,8 @@ router.post('/state', function (req, res, next) {
       if (err) {
         console.log("Failed to update game state: " + err + "\n");
         // TODO: define behavior/action for error
+        res.status(401);
+        res.send("Failed to update game state");
         return;
       }
 
@@ -370,6 +377,7 @@ router.post('/state', function (req, res, next) {
 
 });
 
+/* POST create page */
 router.post('/create', function (req, res, next) {
   if (req.isAuthenticated()) {
     const userId = req.user.uid;
