@@ -124,7 +124,7 @@ async function connectToGame(req, res, game_id) {
   if(uid_1 == req.user.uid || uid_2 == req.user.uid) {
     console.log("User already in this game. Redirecting...");
     // TODO: redirect to specific game instance
-    res.redirect('/game');
+    res.redirect('/game/' + game_id);
   } else if(uid_1 == null) {
     console.log("New room created. Adding user " + req.user.username);
     target = "uid_1";
@@ -142,8 +142,12 @@ async function connectToGame(req, res, game_id) {
 }
 
 // Game routes
-
 router.get('/', function (req, res, next) {
+  console.log("Nothing here.");
+  res.redirect('/lobby');
+});
+
+router.get('/:gameId', function (req, res, next) {
   if (req.isAuthenticated()) {
     const username = req.user.username;
     const userId = req.user.uid;
@@ -153,8 +157,8 @@ router.get('/', function (req, res, next) {
 
     // TODO: Need to create a random chess table/ game_id
     // May want to use a function for query
-    const game_id = 10001;
-    const queryString = "SELECT * FROM game WHERE gid LIKE " + game_id + ";";
+    const gameId = req.params.gameId;
+    const queryString = "SELECT * FROM game WHERE gid LIKE " + gameId + ";";
     connection.query(queryString, function(err, result) {
       if (err || !result.length) {
         console.log("Failed to lookup game state: " + err + "\n");
@@ -165,7 +169,7 @@ router.get('/', function (req, res, next) {
       const state = result[0].game_state;
       const uid_1 = result[0].uid_1;
       const uid_2 = result[0].uid_2;
-
+      console.log("Game " + gameId + " state: " + state);
       // Redirect if current user is not in the game
       if(userId !== uid_1 && userId !== uid_2) {
         // TODO: Send proper http response code
@@ -188,8 +192,10 @@ router.get('/', function (req, res, next) {
         color: color, 
         uid: userId, 
         otherUser: otherUid, 
-        state: state
+        state: state,
+        gameId: gameId
       });
+      connection.end();
     });
   } else {
     res.redirect('/login');
@@ -270,11 +276,12 @@ router.get('/state', function (req, res, next) {
 router.post('/state', function (req, res, next) {
   if (req.isAuthenticated()) {
     // TEMP: wait for game id to be stored in front end
-    let gameId = 10001; // for use with: uid=1 => bob123
+    // let gameId = 10001; // for use with: uid=1 => bob123
     // let gameState = req.body.status;
     // if(gameState == '')
       // let gameState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     // else 
+      let gameId = req.body.gameId;
       let gameState = req.body.status;
     
     // TEMP: currently replaces '1' with '0' at the end of the string
@@ -290,7 +297,6 @@ router.post('/state', function (req, res, next) {
       }
 
       console.log("\nGame state update successful for gid = " + gameId + "!\n");
-      // res.send("Temporary nly!");
     });
     connection.end();
   } else {

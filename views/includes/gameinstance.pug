@@ -122,8 +122,8 @@ script.
       var updateState = function() {
         $.ajax({
           method:'POST',
-          url: 'game/state', 
-          data: {status: game.fen()}, 
+          url: 'state', 
+          data: {status: game.fen(), gameId: !{gameId}}, 
         //- success: function(data){ alert(data); }, 
         //- error: function(xhr, desc, err){console.log(err);}
         });
