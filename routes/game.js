@@ -141,7 +141,7 @@ async function connectToGame(req, res, game_id) {
   }
 }
 
-// Attempts to connect current user to game
+// Attempts to connect current user to game for viewing
 async function connectToViewGame(req, res, game_id) {
   let game_data = await getGameData(game_id)
     .catch((err) => console.log(err));
