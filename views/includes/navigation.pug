@@ -1,17 +1,20 @@
-div(class='d-flex h-25 text-center justify-content-center align-items-center border-bottom')
+div(class='d-flex p text-center justify-content-center align-items-center border-bottom py-5')
+  ul(class='nav flex-column')
+    a(class='nav-link' href='/')
+      h3(class='text-uppercase text-center') Chessmake
+    if user
+      h6 Welcome !{user}
+div(class='d-flex text-center justify-content-center align-items-center border-bottom py-3')
   ul(class='nav flex-column')
     if user
-      h2 Welcome !{user}
       li(class='nav-item')
         a(class='nav-link' href='/logout') Logout
+    else 
       li(class='nav-item')
-    else
-      li(class='nav-item')
-        usename
         a(class='nav-link' href='/login') Login
       li(class='nav-item')
         a(class='nav-link' href='/register') Register
-div(class='d-flex h-50 text-center justify-content-center border-bottom pt-5')
+div(class='d-flex text-center justify-content-center border-bottom py-3')
   ul(class='nav flex-column')
     if user
       li(class='nav-item')
@@ -22,8 +25,7 @@ div(class='d-flex h-50 text-center justify-content-center border-bottom pt-5')
       a(class='nav-link' href='/lobby') Game Lobbies
     li(class='nav-item')
       a(class='nav-link' href='/about') About
-div(class='d-flex h-25 text-center justify-content-center align-items-center')
+div(class='d-flex text-center justify-content-center align-items-center')
   small(class='p-4')
-    h6 Footer information
-    h8 CSC 667, Group 3.
-    p This is a test page not meant for any practical use.
+    h6 Site information
+    p(class="text-muted") 667, Group 3. <br> This is a test page not meant for any practical use.
