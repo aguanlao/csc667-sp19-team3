@@ -14,10 +14,10 @@ if lobbies
                 h5 Player !{lobby.uid_1}'s Game
           div(class='col-3 align-items-center')
             div(class='d-flex justify-content-around align-items-center')
-              form(class='inline my-0' action='/game' method='post')
+              form(class='inline my-0' action='/game/connect' method='post')
                 input(type='hidden' name='game_id' value=lobby.gid)
                 button(type='submit' class="btn btn-secondary") Join
-              form(class='inline my-0' action='/game' method='post')
+              form(class='inline my-0' action='/game/view/connect' method='post')
                 input(type='hidden' name='game_id' value=lobby.gid)
                 button(type='submit' class="btn btn-outline-secondary") View
       div(class='card-footer text-muted small text-right py-1') Created by !{lobby.uid_1}.
