@@ -5,44 +5,6 @@ ul(class='nav nav-tabs mb-2')
 
 //- div(class='list group h-75' id="world_chat")
 div(class='card overflow-auto' id="world_chat" style="height: 400px")
-
-
-
-
-    //- li(class='list-group-item mb-1') 
-    //-     div(class='d-flex w-100 justify-content-between')
-    //-         h6(class='mb-0' ) Name
-    //-     small Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
-    //- // example chat block
-    //- li(class='list-group-item mb-1')
-    //-     div(class='d-flex w-100 justify-content-between')
-    //-         h6(class='mb-0') Name
-    //-     small Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
-    //- // example chat block
-    //- li(class='list-group-item mb-1')
-    //-     div(class='d-flex w-100 justify-content-between')
-    //-         h6(class='mb-0') Name
-    //-     small Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
-    //- // example chat block
-    //- li(class='list-group-item mb-1')
-    //-     div(class='d-flex w-100 justify-content-between')
-    //-         h6(class='mb-0') Name
-    //-     small Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
-    //-     // example chat block
-    //- li(class='list-group-item mb-1')
-    //-     div(class='d-flex w-100 justify-content-between')
-    //-         h6(class='mb-0') Name
-    //-     small Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
-
-//- div(class='input-group border-top pt-2')
-//-     input(type='text' class='form-control' placeholder='Message world chat')
-//-     div(class='input-group-append')
-//-         button(class='btn btn-outline-primary' type='button') Send
-
-
-
-
-
 div(class='list group h-75 overflow-auto' id="private_chat")
     // example chat block
     li(class='list-group-item mb-1')
@@ -58,54 +20,9 @@ div(class='list group h-75 overflow-auto' id="private_chat")
 div(class='input-group border-top pt-2' )
     input(type='text' class='form-control' placeholder='Message world chat' id="message")
     div(class='input-group-append')
-        button(class='btn btn-outline-primary' onClick='ButtonIsClicked()') Send
-
-
-//- div(class='card bg-light' id='private_chat' style='w-100')
-//-     div(class='card')
-//-        div(class='card-header') Private Chat
-//-        div(class='card-body' style='height: 300px') Screen
-//-             hr
-//-             hr
-//-             hr
-//-             hr
-//-             hr
-//-             hr
-//-        div(class='card-footer') Keyboard
-//-             form(id='sendMessage')
-//-                 div(class='input-group')
-//-                     input(type="text" class='form-control' name='message' placeholder='Type your message...') 
-//-                     div(class='input-group-append')
-//-                     button(class='btn btn-primary') Send
-
-
-//- //- div(class='d-flex h-100 justify-content-center align-items-center')
-
-//- div(class='card bg-light' id='world_chat' style='w-100')
-//-     //- div(class='card-body py-2')
-//-     div(class='card')
-//-        div(class='card-header') World Chat
-//-        div(class='card-body' style='height: 300px') Screen
-//-             hr
-//-             hr
-//-             hr
-//-             hr
-//-             hr
-//-             hr
-//-        div(class='card-footer') Keyboard
-//-             form(id='sendMessage')
-//-                 div(class='input-group')
-//-                     input(type="text" class='form-control' name='message' placeholder='Type your message...') 
-//-                     div(class='input-group-append')
-//-                     button(class='btn btn-primary') Send
-
+        button(class='btn btn-outline-primary' onClick='ButtonIsClicked()' autocomplete="off") Send
 
         
-//- div(class='card-footer text-muted small text-right py-1')
-//-     div(class='row')
-//-         button(class='col-sm-6 btn btn-lighting' id='private_box' onClick='OpenPrivateChat()') Private Chat
-//-         button(class='col-sm-6 btn btn-lighting' id='world_box' onClick='OpenWorldChat()') World Chat
-
 script.
     
     $("#world_chat").show();
@@ -127,46 +44,69 @@ script.
 
     function ButtonIsClicked(){
         
-        var chat_message = $("#message").val()
+        var chat_message = $("#message").val();
+        //- $("#world_chat").html();
         //- Check if message is empty or only space, then do nothing
         if(chat_message.trim().length != 0){
-            var messages_content_one = $("#world_chat").html()
+            var messages_content= $("#world_chat").html()
             //- $("#world_chat").html(messages_content_one + '<strong>' + 'Thanh: ' + '<small>' + chat_message + '<hr>')
             
-                    $.ajax({method:'POST',
-                        url: 'message', 
-                        data: {message: chat_message}, 
-                        success: function(fields){
+                $.ajax({method:'POST',
+                    url: 'message', 
+                    data: {message: chat_message}, 
+                    success: function(fields){
                             //- console.log(fields);
-                            $.ajax({method: 'GET',
-                                url: 'message', 
-                                data: {},
-                                dataType: "json", 
-                                success: function(rows){
-                                    for (i=0 ; i < rows.length ; i++){
+                        $.ajax({method: 'GET',
+                            url: 'message', 
+                            data: {},
+                            dataType: "json", 
+                            success: function(rows){
+
+                                for (i=0 ; i < rows.length ; i++){
+                                    var messages_content = $("#world_chat").html()
                                     
                                     var row = rows[i];
-                                    $("#world_chat").html(messages_content_one + '<strong>' + row.uid + ': ' + '<small>' + '(' + row.timestamp + '): ' + row.message + '<hr>');
+                                    $("#world_chat").html(messages_content + '<strong>' + row.uid + ': ' + '<small>' + '(' + row.timestamp + '): ' + row.message + '<hr>');
 
                                     }
-                                                
-                                    }, 
-                                error: function(err){alert("error when loading the data");}
+ 
+                                }, 
+                            error: function(err){alert("error when loading the data");}
 
-                                });
-                        }
+                            });
+                               
+                    }
                         //- },
-                        //- error: function(err){alert(err);}
+                    error: function(err){alert("error when pushing message to db");}
 
-                    });
+
+                });
         }
 
-    }
+    //- var socket = io();
+    //-     socket.emit('chat message', $('#message').val());
+    //-       $('#message').val('');
+    //-       return false;
+    //-     socket.on('chat message', function(msg){
+    //-       $('#world_chat').append($('<li>').text(msg));
+    //-       window.scrollTo(0, document.body.scrollHeight);
+    //-     });
 
-    function Socket(){
-        this.socket = io()
+    //- }
 
-    }
+    //- function socket() {
+    //-     var socket = io();
+    //-     $('form').submit(function(){
+    //-       socket.emit('chat message', $('#message').val());
+    //-       $('#message').val('');
+    //-       return false;
+    //-     });
+    //-     socket.on('chat message', function(msg){
+    //-       $('#world_chat').append($('<li>').text(msg));
+    //-       window.scrollTo(0, document.body.scrollHeight);
+    //-     }
+    //- }
+    
 
     //- fuction chatOutPut(){
 
@@ -186,29 +126,3 @@ script.
 
     //-         });
     //- }
-
-
-//- var socket = io();
-//- socket.on(‘message’, addMessages)
-
-    //- $(() => {
-    //- $("#send").click(()=>{
-    //-    sendMessage({
-    //-       name: $("#name").val(), 
-    //-       message:$("#message").val()});
-    //-     })
-    //-   getMessages()
-    //- })
-//- function addMessages(message){
-//-    $(“#messages”).append(`
-//-       <h4> ${message.name} </h4>
-//-       <p>  ${message.message} </p>`)
-//-    }
-//- function getMessages(){
-//-   $.get(‘http://localhost:3000/messages', (data) => {
-//-    data.forEach(addMessages);
-//-    })
-//-  }
-//- function sendMessage(message){
-//-    $.post(‘http://localhost:3000/messages', message)
-//-  }
