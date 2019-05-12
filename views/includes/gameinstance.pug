@@ -1,35 +1,44 @@
-div(class='d-flex flex-column justify-content-center align-items-center shadow bg-dark p-3 mb-2')
-  div(class='flex-row h-75 w-75 m-0 mb-1 p-0 overflow-auto' type='text/html' id='board' ) 
+div(class="container shadow bg-dark d-flex flex-column justify-content-center align-items-center p-3 mb-2 w-100")
+  div(class="w3-row")
+    div(class="w3-col") 
+    div(class="w3-col 3-container" id="board" style="width: 500px")
+    div(class="w3-col") 
   div(class='alert alert-primary w-75 m-0 pb-0 text-center align-items-center small')
     p
       | Status: 
       span#status
-    //-
-      p
-        | FEN: 
-        //- span#fen
-        span(id="fen")
+
+  p
+    span#fen
       //- p
       //-   | pgn: 
       //-   span#pgn
-
-
 div(class='card bg-light w-100')
   div(class='card-header text-center py-1') 000
   div(class='card-body py-3')
     div(class='row')
       div(class='col-5')
         div(class='d-flex justify-content-around')
-          h5(id="player1_turn") Player 1
+          h5(id="player1_turn") Player !{uid}
+          if color === 'w'
+            p White
+          else
+            p Black
       div(class='col-2 border-right border-left')
         div(class='d-flex justify-content-around')
           h5 vs.
       div(class='col-5')
         div(class='d-flex justify-content-around')
-          h5(id="player2_turn") Player 2
+          h5(id="player2_turn") Player !{otherUser}
+          if color === 'w'
+            p Black
+          else
+            p White
 
 
 script.
+      const userColor = '!{color}';
+      var state = "!{state}";
       var board,
       game = new Chess(),
       statusEl = $('#status'),
@@ -51,9 +60,12 @@ script.
       var onDragStart = function(source, piece) {
       // do not pick up pieces if the game is over
       // or if it's not that side's turn
+      // or if it's not the user's color
         if (game.game_over() === true ||
           (game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-          (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+          (game.turn() === 'b' && piece.search(/^w/) !== -1) ||
+          (userColor === 'w' && piece.search(/^b/) !== -1) || 
+          (userColor === 'b' && piece.search(/^w/) !== -1)) {
         return false;
         }
       };
@@ -70,7 +82,9 @@ script.
       
         // illegal move
         if (move === null) return 'snapback';
-          updateStatus();
+        
+        updateStatus();
+        updateState();
       };
 
 
@@ -96,7 +110,23 @@ script.
       };
       
       var onSnapEnd = function() {
-        board.position(game.fen());
+        //- board.position('rnbqkbnr/p1pppppp/8/1p6/P2P4/8/1PP1PPPP/RNBQKBNR b KQkq d3 0 2')
+        board.position(game.fen())
+
+        //- $.ajax({method:'GET', url: 'game/state')}
+
+      };
+
+      // Sends AJAX request to server to update game state
+      // TODO: Use AJAX to wait for game state update
+      var updateState = function() {
+        $.ajax({
+          method:'POST',
+          url: 'state', 
+          data: {status: game.fen(), gameId: !{gameId}}, 
+        //- success: function(data){ alert(data); }, 
+        //- error: function(xhr, desc, err){console.log(err);}
+        });
       };
       
       var updateStatus = function() {
@@ -105,9 +135,6 @@ script.
         var moveColor = 'White';
         if (game.turn() === 'b') {
           moveColor = 'Black';
-
-          console.log("black turn")
-
         }
         // checkmate?
         if (game.in_checkmate() === true) {
@@ -132,15 +159,19 @@ script.
         fenEl.html(game.fen());
         pgnEl.html(game.pgn());
       };
-
+      
       var cfg = {
         draggable: true,
-        position: 'start',
+        position: state,
         onDragStart: onDragStart,
         onDrop: onDrop,
         onMouseoutSquare: onMouseoutSquare,
         onMouseoverSquare: onMouseoverSquare,
         onSnapEnd: onSnapEnd
         };
+      
       board = ChessBoard('board', cfg);
+      game.load(state);
       updateStatus();
+      
+      
