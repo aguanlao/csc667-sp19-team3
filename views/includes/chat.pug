@@ -126,39 +126,39 @@ script.
     }
 
     function ButtonIsClicked(){
-        //- alert('botton is clicked')
-        //- var message = $("#message").val()
-        //- console.log(mes)
-        //- console.log($("#message").val())
-
-    if($("#world_chat").show()){
-        var messages_content_one = $("#world_chat").html()
-        $("#world_chat").html(messages_content_one + '<strong>' + 'Thanh: ' + '<small>' + $("#message").val() + '<hr>')
+        
+        var chat_message = $("#message").val()
+        //- Check if message is empty or only space, then do nothing
+        if(chat_message.trim().length != 0){
+            var messages_content_one = $("#world_chat").html()
+            //- $("#world_chat").html(messages_content_one + '<strong>' + 'Thanh: ' + '<small>' + chat_message + '<hr>')
             
-       	    //- $.post("./message.js", 
-  		  	//-   {message: $("#message").val()} )
-    	  	//-   function(data) { 
-    	   	//-     $("#chat").val(data); 
-    		//-     $("#message").val("");
+                    $.ajax({method:'POST',
+                        url: 'message', 
+                        data: {message: chat_message}, 
+                        success: function(fields){
+                            //- console.log(fields);
+                            $.ajax({method: 'GET',
+                                url: 'message', 
+                                data: {},
+                                dataType: "json", 
+                                success: function(rows){
+                                    for (i=0 ; i < rows.length ; i++){
+                                    
+                                    var row = rows[i];
+                                    $("#world_chat").html(messages_content_one + '<strong>' + row.uid + ': ' + '<small>' + '(' + row.timestamp + '): ' + row.message + '<hr>');
 
+                                    }
+                                                
+                                    }, 
+                                error: function(err){alert("error when loading the data");}
 
-            //- $.post(`/message`)
-            if($("#message").val() != ''){
-                $.ajax({method:'POST',
-                    url: 'message', 
-                    data: {message: $("#message").val()}, 
-                    //- success: function(data){ alert(data); }, 
-                    //- error: function(xhr, desc, err){console.log(err);}
+                                });
+                        }
+                        //- },
+                        //- error: function(err){alert(err);}
 
-                });
-            }
-
-    
-
-        }
-    else{
-            var messages_content_two = $("#private_chat").html()
-            $("#private_chat").html(messages_content_two + '<strong>' + 'Thanh: ' + '<small>' + $("#message").val() + '<hr>')
+                    });
         }
 
     }
@@ -167,6 +167,27 @@ script.
         this.socket = io()
 
     }
+
+    //- fuction chatOutPut(){
+
+    //-     $.ajax({method: 'GET',
+    //-         url: 'message', 
+    //-         data: {},
+    //-         dataType: "json", 
+    //-         success: function(rows){
+    //-             for (i=0 ; i < rows.length ; i++){
+    //-             var row = rows[i];
+    //-             $("#world_chat").html('<strong>' + row.uid + ': ' + '<small>' + '(' + row.timestamp + '): ' + row.message + '<hr>');
+
+    //-             }
+                               
+    //-             }, 
+    //-         error: function(err){alert("error when loading the data");}
+
+    //-         });
+    //- }
+
+
 //- var socket = io();
 //- socket.on(‘message’, addMessages)
 

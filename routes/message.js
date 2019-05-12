@@ -2,7 +2,7 @@ var express = require('express');
 var app = express();
 var router = express.Router();
 // var server = require('http').Server(app);
-// var io = require('socket.io').listen(server);
+// var io = require('socket.io')
 // const bodyParser = require('body-parser');
 
 
@@ -44,26 +44,38 @@ function getConnection() {
 //     })
 //   })
 
+
 router.get('/', function(req, res, next) {
-    console.log("nothing to show")
-    
+    let connection = getConnection()
+    let queryString = 'SELECT * FROM `message`';
+    connection.query(queryString, (err, rows, fields) => {
+      if (err) {
+        console.log("Failed to update game state: " + err + "\n");
+        // TODO: define behavior/action for error
+        return;
+      }
+    res.send(rows)
+    });
+    connection.end();
+  
 });
 
 router.post('/', function(req, res, next) {
         let message = req.body.message;
-        console.log(message);
+        var date = new Date();
+
+
         let connection = getConnection()
-        let queryString = "INSERT INTO `message` (uid, gid, message, timestamp) VALUES ('1111', '1111', '"+message+"', '1111')";
+        let queryString = "INSERT INTO `message` (uid, gid, message, timestamp) VALUES ('thanh', '1111', '"+message+"', '"+date+"')";
         connection.query(queryString, (err, rows, fields) => {
           if (err) {
             console.log("Failed to update game state: " + err + "\n");
             // TODO: define behavior/action for error
             return;
           }
-          console.log(message);
+        res.send(fields)
         });
         connection.end();
 
   });
-  
   module.exports = router;
