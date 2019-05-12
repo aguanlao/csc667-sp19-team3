@@ -141,6 +141,16 @@ async function connectToGame(req, res, game_id) {
   }
 }
 
+// Attempts to connect current user to game for viewing
+async function connectToViewGame(req, res, game_id) {
+  let game_data = await getGameData(game_id)
+    .catch((err) => console.log(err));
+  console.log(game_data);
+
+  console.log("\nRedirecting to: /game/view/" + game_id + "\n");
+  res.redirect('/game/view/' + game_id);
+}
+
 // Game routes
 router.get('/', function (req, res, next) {
   console.log("Nothing here.");
@@ -202,11 +212,66 @@ router.get('/:gameId', function (req, res, next) {
   }
 });
 
+router.get('/view/:gameId', function (req, res, next) {
+  if (req.isAuthenticated()) {
+    const username = req.user.username;
+    //const userId = req.user.uid;
+    const connection = getConnection()
+
+    console.log("Getting state in game/");
+
+    // May want to use a function for query
+    const gameId = req.params.gameId;
+    const queryString = "SELECT * FROM game WHERE gid LIKE " + gameId + ";";
+    connection.query(queryString, function(err, result) {
+      if (err || !result.length) {
+        console.log("Failed to lookup game state: " + err + "\n");
+        // TODO: define behavior/action for error
+        return;
+      }
+
+      const state = result[0].game_state;
+      const uid1 = result[0].uid_1;
+      const uid2 = result[0].uid_2;
+
+      console.log("\nGame state from /view/:gameId: " + state);
+      console.log("User 1: " + uid1);
+      console.log("User 2: " + uid2 + "\n");
+
+      res.render('game', { 
+        title: 'Game', 
+        user: username,
+        color: 'neither', 
+        uid: uid1, 
+        otherUser: uid2, 
+        state: state,
+        gameId: gameId,
+        draggable: false
+      });
+      connection.end();
+    });
+  } else {
+    res.redirect('/login');
+  }
+});
+
 router.post('/connect', function(req, res, next) {
   if (req.isAuthenticated()) {
     const game_id = req.body.game_id;
     console.log("Attempting to connect to game " + game_id);
     connectToGame(req, res, game_id).catch((err) => console.log(err))
+
+    // res.render('game', { title: 'Game' , user: req.user.username});
+  } else {
+    res.redirect('/login');
+  }
+});
+
+router.post('/view/connect', function(req, res, next) {
+  if (req.isAuthenticated()) {
+    const game_id = req.body.game_id;
+    console.log("Attempting to connect to view " + game_id);
+    connectToViewGame(req, res, game_id).catch((err) => console.log(err))
 
     // res.render('game', { title: 'Game' , user: req.user.username});
   } else {

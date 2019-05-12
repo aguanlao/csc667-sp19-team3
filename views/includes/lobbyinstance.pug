@@ -1,26 +1,25 @@
 if lobbies
   each lobby in lobbies
-    div(class='card bg-light' style="w-100")
+    div(class='card bg-light mb-3' style="w-100")
       div(class='card-body py-3')
-        div(class='row')
-          div(class='col-1 border-right')
+        div(class='row align-items-center')
+          div(class='col-2 border-right')
             div(class='d-flex justify-content-around')
               h5 !{lobby.gid}
-          div(class='col-8')
+          div(class='col-7')
             div(class='d-flex justify-content-start')
               if lobby.title
                 h5 !{lobby.title}
               else
                 h5 Player !{lobby.uid_1}'s Game
-          div(class='col-3')
-            div(class='d-flex justify-content-around')
-              form(class='inline' action='/game/connect' method='post')
+          div(class='col-3 align-items-center')
+            div(class='d-flex justify-content-around align-items-center')
+              form(class='inline my-0' action='/game/connect' method='post')
                 input(type='hidden' name='game_id' value=lobby.gid)
-                button(type='submit' class='link-button') Join
-              a(href='/game') View
-      div(class='card-footer text-muted small text-right py-1') Created 5 minutes ago.
+                button(type='submit' class="btn btn-secondary") Join
+              form(class='inline my-0' action='/game/view/connect' method='post')
+                input(type='hidden' name='game_id' value=lobby.gid)
+                button(type='submit' class="btn btn-outline-secondary") View
+      div(class='card-footer text-muted small text-right py-1') Created by !{lobby.uid_1}.
 else
-  div(class='d-flex h-100 justify-content-center align-items-center')
-    div(class='alert alert-secondary w-50')
-      h4(class='alert-heading justify-content-center') No open lobbies?!
-      a(class="btn btn-primary mx-4" href="/create_lobby") Create Your Own
+  p(class='text-muted text-center') There are no active lobbies.
