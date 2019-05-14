@@ -122,7 +122,9 @@ async function connectToGame(req, res, game_id) {
   // If user already in the game, else if creating a new game, 
   // else if joining an existing game, else game is full
   if(uid_1 == req.user.uid || uid_2 == req.user.uid) {
-    console.log("User already in this game...");
+    console.log("User already in this game. Redirecting...");
+    // TODO: redirect to specific game instance
+    res.redirect('/game/' + game_id);
   } else if(uid_1 == null) {
     console.log("New room created. Adding user " + req.user.username);
     target = "uid_1";
@@ -134,74 +136,28 @@ async function connectToGame(req, res, game_id) {
     let update = await updateGamePlayer(req, game_id, target)
     .catch((err) => console.log(err))
   } else {
-    console.log("Connection failed. Room is full.");
+    console.log("Room is full. Returning to lobby.");
+    res.redirect('/lobby');
   }
 }
 
-function connectHandler(req, res, next) {
-  if (req.isAuthenticated()) {
-    const game_id = req.body.game_id;
-    console.log("Attempting to connect to game " + game_id);
-    connectToGame(req, res, game_id)
-      .then(next)
-      .catch((err) => console.log(err))
-  } else {
-    res.redirect('/login');
-  }
-}
+// Attempts to connect current user to game for viewing
+async function connectToViewGame(req, res, game_id) {
+  let game_data = await getGameData(game_id)
+    .catch((err) => console.log(err));
+  console.log(game_data);
 
-function gameHandler(req, res, next) {
-  if (req.isAuthenticated()) {
-    const username = req.user.username;
-    const userId = req.user.uid;
-    const connection = getConnection()
-
-    const game_id = req.body.game_id;
-    const queryString = "SELECT * FROM game WHERE gid LIKE " + game_id + ";";
-    connection.query(queryString, function(err, result) {
-      if (err || !result.length) {
-        console.log("Failed to lookup game state: " + err + "\n");
-        // TODO: define behavior/action for error
-        return;
-      }
-
-      const state = result[0].game_state;
-      const uid_1 = result[0].uid_1;
-      const uid_2 = result[0].uid_2;
-
-      // Redirect if current user is not in the game
-      if(userId !== uid_1 && userId !== uid_2) {
-        // TODO: Send proper http response code
-        console.log("You're not in this game.");
-        res.redirect('/lobby');
-        return;
-      }
-
-      // Determine uid of other player & current user color
-      let otherUid = uid_1;
-      let color = 'b';
-      if(userId ===  uid_1) {
-        otherUid = uid_2;
-        color = 'w';
-      } 
-
-      res.render('game', { 
-        title: 'Game', 
-        user: username,
-        color: color, 
-        uid: userId, 
-        otherUser: otherUid, 
-        state: state
-      });
-    });
-  } else {
-    res.redirect('/login');
-  }  
+  console.log("\nRedirecting to: /game/view/" + game_id + "\n");
+  res.redirect('/game/view/' + game_id);
 }
 
 // Game routes
-
 router.get('/', function (req, res, next) {
+  console.log("Nothing here.");
+  res.redirect('/lobby');
+});
+
+router.get('/:gameId', function (req, res, next) {
   if (req.isAuthenticated()) {
     const username = req.user.username;
     const userId = req.user.uid;
@@ -211,23 +167,25 @@ router.get('/', function (req, res, next) {
 
     // TODO: Need to create a random chess table/ game_id
     // May want to use a function for query
-    const game_id = 10001;
-    const queryString = "SELECT * FROM game WHERE gid LIKE " + game_id + ";";
+    const gameId = req.params.gameId;
+    const queryString = "SELECT * FROM game WHERE gid LIKE " + gameId + ";";
     connection.query(queryString, function(err, result) {
       if (err || !result.length) {
         console.log("Failed to lookup game state: " + err + "\n");
         // TODO: define behavior/action for error
+        res.status(401).send('Failed to look up game state.');
         return;
       }
 
       const state = result[0].game_state;
       const uid_1 = result[0].uid_1;
       const uid_2 = result[0].uid_2;
-
+      console.log("Game " + gameId + " state: " + state);
       // Redirect if current user is not in the game
       if(userId !== uid_1 && userId !== uid_2) {
         // TODO: Send proper http response code
         console.log("You're not in this game.");
+        res.status(401).send('401 error: you are not in this game.');
         res.redirect('/lobby');
         return;
       }
@@ -246,17 +204,82 @@ router.get('/', function (req, res, next) {
         color: color, 
         uid: userId, 
         otherUser: otherUid, 
-        state: state
+        state: state,
+        gameId: gameId
       });
+      connection.end();
     });
   } else {
     res.redirect('/login');
   }
 });
 
-router.post('/', connectHandler, gameHandler);
+router.get('/view/:gameId', function (req, res, next) {
+  if (req.isAuthenticated()) {
+    const username = req.user.username;
+    //const userId = req.user.uid;
+    const connection = getConnection()
 
-router.post('/connect', connectHandler);
+    console.log("Getting state in game/");
+
+    // May want to use a function for query
+    const gameId = req.params.gameId;
+    const queryString = "SELECT * FROM game WHERE gid LIKE " + gameId + ";";
+    connection.query(queryString, function(err, result) {
+      if (err || !result.length) {
+        console.log("Failed to lookup game state: " + err + "\n");
+        // TODO: define behavior/action for error
+        return;
+      }
+
+      const state = result[0].game_state;
+      const uid1 = result[0].uid_1;
+      const uid2 = result[0].uid_2;
+
+      console.log("\nGame state from /view/:gameId: " + state);
+      console.log("User 1: " + uid1);
+      console.log("User 2: " + uid2 + "\n");
+
+      res.render('game', { 
+        title: 'Game', 
+        user: username,
+        color: 'neither', 
+        uid: uid1, 
+        otherUser: uid2, 
+        state: state,
+        gameId: gameId,
+        draggable: false
+      });
+      connection.end();
+    });
+  } else {
+    res.redirect('/login');
+  }
+});
+
+router.post('/connect', function(req, res, next) {
+  if (req.isAuthenticated()) {
+    const game_id = req.body.game_id;
+    console.log("Attempting to connect to game " + game_id);
+    connectToGame(req, res, game_id).catch((err) => console.log(err))
+
+    // res.render('game', { title: 'Game' , user: req.user.username});
+  } else {
+    res.redirect('/login');
+  }
+});
+
+router.post('/view/connect', function(req, res, next) {
+  if (req.isAuthenticated()) {
+    const game_id = req.body.game_id;
+    console.log("Attempting to connect to view " + game_id);
+    connectToViewGame(req, res, game_id).catch((err) => console.log(err))
+
+    // res.render('game', { title: 'Game' , user: req.user.username});
+  } else {
+    res.redirect('/login');
+  }
+});
 
 router.get('/leave', function(req, res, next) {
   if (req.isAuthenticated()) {
@@ -277,6 +300,7 @@ router.get('/leave', function(req, res, next) {
       if (err) {
         console.log("Failed to find current game: " + err + "\n");
         // TODO: define behavior/action for error
+        res.status(404).send('Failed to find current game');
         return;
       }
 
@@ -302,6 +326,8 @@ router.get('/state', function (req, res, next) {
       if (err || !rows.length) {
         console.log("Failed to lookup game state: " + err + "\n");
         // TODO: define behavior/action for error
+        res.status(401);
+        res.send("Failed to lookup game state");
         return;
       }
 
@@ -320,11 +346,12 @@ router.get('/state', function (req, res, next) {
 router.post('/state', function (req, res, next) {
   if (req.isAuthenticated()) {
     // TEMP: wait for game id to be stored in front end
-    let gameId = 10001; // for use with: uid=1 => bob123
+    // let gameId = 10001; // for use with: uid=1 => bob123
     // let gameState = req.body.status;
     // if(gameState == '')
       // let gameState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     // else 
+      let gameId = req.body.gameId;
       let gameState = req.body.status;
     
     // TEMP: currently replaces '1' with '0' at the end of the string
@@ -336,11 +363,12 @@ router.post('/state', function (req, res, next) {
       if (err) {
         console.log("Failed to update game state: " + err + "\n");
         // TODO: define behavior/action for error
+        res.status(401);
+        res.send("Failed to update game state");
         return;
       }
 
       console.log("\nGame state update successful for gid = " + gameId + "!\n");
-      // res.send("Temporary nly!");
     });
     connection.end();
   } else {
@@ -349,6 +377,7 @@ router.post('/state', function (req, res, next) {
 
 });
 
+/* POST create page */
 router.post('/create', function (req, res, next) {
   if (req.isAuthenticated()) {
     const userId = req.user.uid;

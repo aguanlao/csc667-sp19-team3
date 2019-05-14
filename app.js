@@ -11,9 +11,7 @@ var passport = require('passport');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var gameRouter = require('./routes/game');
-
-
-var message_content = require('./routes/message');
+var messageRouter = require('./routes/message');
 
 var app = express();
 
@@ -26,6 +24,8 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use('/game', express.static(path.join(__dirname, 'public')));
+app.use('/game/view', express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 //app.use(bodyParser.json({limit: 52428800, type: 'application/json'}))
@@ -43,8 +43,7 @@ app.use(passport.session());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/game', gameRouter);
-app.use('/message', message_content);
-
+app.use('/message', messageRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -38,12 +38,20 @@ div(class='card bg-light w-100')
 
 script.
       const userColor = '!{color}';
+      let draggable; // for game viewing
       var state = "!{state}";
       var board,
       game = new Chess(),
       statusEl = $('#status'),
       fenEl = $('#fen'),
       pgnEl = $('#pgn');
+
+      // for game viewing
+      if (userColor === 'neither') {
+        draggable = false;
+      } else {
+        draggable = true;
+      }
 
       var removeGreySquares = function() {
         $('#board .square-55d63').css('background', '');
@@ -122,8 +130,8 @@ script.
       var updateState = function() {
         $.ajax({
           method:'POST',
-          url: 'game/state', 
-          data: {status: game.fen()}, 
+          url: 'state', 
+          data: {status: game.fen(), gameId: !{gameId}}, 
         //- success: function(data){ alert(data); }, 
         //- error: function(xhr, desc, err){console.log(err);}
         });
@@ -161,7 +169,7 @@ script.
       };
       
       var cfg = {
-        draggable: true,
+        draggable: draggable,
         position: state,
         onDragStart: onDragStart,
         onDrop: onDrop,
@@ -173,3 +181,5 @@ script.
       board = ChessBoard('board', cfg);
       game.load(state);
       updateStatus();
+      
+      
