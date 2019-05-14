@@ -1,128 +1,81 @@
 ul(class='nav nav-tabs pt-3')
     li(class='nav item')
-        a(class='nav-link active' onClick='OpenWorldChat()') World
-        a(class='nav-link' onClick='OpenPrivateChat()') Private
-
-div(class='list group h-75 overflow-auto py-2' id="world_chat")
-    // example chat block
-    li(class='list-group-item mb-1')
-        div(class='d-flex w-100 justify-content-between')
-            h6(class='mb-0') Name
-        small Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
-    // example chat block
-    li(class='list-group-item mb-1')
-        div(class='d-flex w-100 justify-content-between')
-            h6(class='mb-0') Name
-        small Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
-    // example chat block
-    li(class='list-group-item mb-1')
-        div(class='d-flex w-100 justify-content-between')
-            h6(class='mb-0') Name
-        small Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
-    // example chat block
-    li(class='list-group-item mb-1')
-        div(class='d-flex w-100 justify-content-between')
-            h6(class='mb-0') Name
-        small Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
-        // example chat block
-    li(class='list-group-item mb-1')
-        div(class='d-flex w-100 justify-content-between')
-            h6(class='mb-0') Name
-        small Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
-//- div(class='input-group border-top pt-2')
-//-     input(type='text' class='form-control' placeholder='Message world chat')
-//-     div(class='input-group-append')
-//-         button(class='btn btn-outline-primary' type='button') Send
+        a(class='nav-link active') Chat Room
 
 
-
-
-
-div(class='list group h-75 overflow-auto' id="private_chat")
-    // example chat block
-    li(class='list-group-item mb-1')
-        div(class='d-flex w-100 justify-content-between')
-            h6(class='mb-0') Name
-        small Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
-    // example chat block
-    li(class='list-group-item mb-1')
-        div(class='d-flex w-100 justify-content-between')
-            h6(class='mb-0') Name
-        small Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.
-
-div(class='input-group border-top pt-2')
-    input(type='text' class='form-control' placeholder='Message world chat')
+//- div(class='list group h-75' id="world_chat")
+div(class='card overflow-auto' id="world_chat" style="height: 400px")
+div(class='input-group border-top pt-2' )
+    input(type='text' class='form-control' placeholder='Message world chat' id="message")
     div(class='input-group-append')
-        button(class='btn btn-outline-primary' type='button') Send
-
-
-
-
-
-
-
-
-
-//- div(class='card bg-light' id='private_chat' style='w-100')
-//-     div(class='card')
-//-        div(class='card-header') Private Chat
-//-        div(class='card-body' style='height: 300px') Screen
-//-             hr
-//-             hr
-//-             hr
-//-             hr
-//-             hr
-//-             hr
-//-        div(class='card-footer') Keyboard
-//-             form(id='sendMessage')
-//-                 div(class='input-group')
-//-                     input(type="text" class='form-control' name='message' placeholder='Type your message...') 
-//-                     div(class='input-group-append')
-//-                     button(class='btn btn-primary') Send
-
-
-//- //- div(class='d-flex h-100 justify-content-center align-items-center')
-
-//- div(class='card bg-light' id='world_chat' style='w-100')
-//-     //- div(class='card-body py-2')
-//-     div(class='card')
-//-        div(class='card-header') World Chat
-//-        div(class='card-body' style='height: 300px') Screen
-//-             hr
-//-             hr
-//-             hr
-//-             hr
-//-             hr
-//-             hr
-//-        div(class='card-footer') Keyboard
-//-             form(id='sendMessage')
-//-                 div(class='input-group')
-//-                     input(type="text" class='form-control' name='message' placeholder='Type your message...') 
-//-                     div(class='input-group-append')
-//-                     button(class='btn btn-primary') Send
-
-
-        
-//- div(class='card-footer text-muted small text-right py-1')
-//-     div(class='row')
-//-         button(class='col-sm-6 btn btn-lighting' id='private_box' onClick='OpenPrivateChat()') Private Chat
-//-         button(class='col-sm-6 btn btn-lighting' id='world_box' onClick='OpenWorldChat()') World Chat
+        button(class='btn btn-outline-primary' onClick='ButtonIsClicked()') Send
 
 script.
-    
-    $("#world_chat").show();
-    $("#private_chat").hide();
-    //- if user not login ==> console ==> you have no permission to view private chat
+    var num_messages = 0
 
-    //- else ...open private box
-    function OpenPrivateChat(){
-        console.log('Private Chat Is Opened');
-        $("#world_chat").hide();
-        $("#private_chat").show();
+    function update_message(length){
+        num_messages = length
+    } 
+
+    setInterval(function() {
+        console.log(num_messages)
+        $.ajax({method: 'GET',
+        url: 'message', 
+        data: {},
+        dataType: "json", 
+            success: function(rows){
+            var length = rows.length
+            if(num_messages < length) { 
+                update_message(length)
+                messages(rows)
+                    } 
+                }   
+
+            });
+    }, 1000)
+
+    function ButtonIsClicked(){
+        var chat_message = $("#message").val()
+        $("#world_chat").html(null) 
+        //- Check if message is empty or only space, then do nothing
+        if(chat_message.trim().length != 0){           
+                    $.ajax({method:'POST',
+                        url: 'message', 
+                        data: {message: chat_message}, 
+                        success: function(fields){
+                            //- console.log(fields);
+                            $.ajax({method: 'GET',
+                                url: 'message', 
+                                data: {},
+                                dataType: "json", 
+                                success: function(rows){
+                                    messages(rows)
+                                }, 
+                                error: function(err){alert("error when loading the data");}
+                                });
+                        }
+
+                    });
+        }
+
     }
 
-    function OpenWorldChat(){
-        console.log('World Chat Is Opened');
-        $("#world_chat").show();
-        $("#private_chat").hide();
-    }
+    function messages(rows){
+        $("#world_chat").html(null) 
+        if(rows.length <= 6){
+            for (i=0 ; i < rows.length ; i++){
+                var messages_router =  $("#world_chat").html();
+                var row = rows[i];
+                $("#world_chat").html(messages_router + '<strong>' + row.uid + ': ' + '<small>' + '(' + row.timestamp + '): ' + row.message + '<hr>');
+            }
+        }
+        else{                       
+            for (i= (rows.length - 6) ; i < rows.length ; i++){
+                var messages_content_one =  $("#world_chat").html();
+                var row = rows[i];
+                $("#world_chat").html(messages_content_one + '<strong>' + row.uid + ': ' + '<small>' + '(' + row.timestamp + '): ' + row.message + '<hr>');
+            }
+         }
+    }  
+
+
