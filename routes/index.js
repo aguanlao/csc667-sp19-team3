@@ -19,8 +19,11 @@ function getConnection() {
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  const user = req.user;
-  res.render('index', { title: 'Index', user: user});
+  if(req.isAuthenticated()) {
+    res.redirect('/lobby');
+  } else {
+    res.render('index', { title: 'Index'});
+  }
 });
 
 router.get('/login', function(req, res, next) {
@@ -127,12 +130,28 @@ router.post('/register', function(req, res, next) {
 });
 
 router.get('/lobby', function(req, res, next) {
-  console.log('\nUser: ' + req.user.username); // test print
-  console.log('Authenicated: ' + req.isAuthenticated() + '\n'); // test print
-
   if (req.isAuthenticated()) {
+    // TODO: Remove debug statements
+    console.log('\nUser: ' + req.user.username); // test print
+    console.log('Authenicated: ' + req.isAuthenticated() + '\n'); // test print
     const username = req.user.username;
-    res.render('lobby', {title: 'Lobby', user: username});
+
+    // Get all games needing a player or in progress
+    const queryString = "SELECT * FROM game WHERE is_active=0 OR is_active=1;";
+    
+    var connection = getConnection();
+    connection.query(queryString, (err, rows, fields) => {
+      if (err) {
+        console.log("Failed to get lobbies: " + err + "\n");
+        // TODO: Send proper HTTP response code
+        return;
+      }
+
+      console.log("Lobbies count: " + rows.length + "\n");
+  
+      res.render('lobby', {title: 'Lobby', user: username, lobbies: rows});
+    });
+    connection.end();
   } else {
     res.redirect('/login');
   }
@@ -148,7 +167,11 @@ router.get('/mylobbies', function(req, res, next) {
 });
 
 router.get('/create_lobby', function(req, res, next) {
-  res.render('create_lobby', { title: 'Lobby' });
+  if (req.isAuthenticated()) {
+    res.render('create_lobby', { title: 'Create Lobby', user: req.user.username });
+  } else {
+    res.redirect('/login');
+  }
 });
 
 

@@ -14,27 +14,39 @@ function getConnection() {
         database: process.env.DB_NAME
     });
 };
-app.use('/game', router);
-// app.use('/create_lobby', create_chess_table);
 
-router.get('/', function (req, res, next) {
-  if (req.isAuthenticated()) {
-    const username = req.user.username;
+app.use('/game', router);
+
+// Queries the database for the user id's data
+async function getUserData(uid) {
+  return new Promise(function(resolve, reject) {
     const connection = getConnection()
 
-    // Need to create a random chess table/ game_id
-    var game_id = 10001;
-    // var game_state = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-    var queryString = "SELECT * FROM game WHERE gid LIKE " + game_id + ";";
+    let queryString = 'SELECT * FROM user WHERE uid LIKE \'';
+    queryString = queryString + uid + "';";
+
     connection.query(queryString, function(err, result) {
-      state = result[0].game_state;
-      res.render('game', { title: 'Game', user: username, state: state});
+      if (err) {
+        console.log("Failed to find user: " + err + "\n");
+        connection.end()
+        reject(null);
+      }
+  
+      // No user found
+      if (!result.length) {
+        console.log("Failed to find user: User " + uid + " does not exist.\n");
+        connection.end()
+        reject(null);
+      }
+  
+
+      data = {'username': result[0].username, 'uid': result[0].uid};
+      connection.end();
+      resolve(data);
+      console.log("Finished getting user data")
     });
-    // console.log("create a new chess table")
-  } else {
-    res.redirect('/login');
-  }
-});
+  });  
+}
 
 // Queries the database for the game id's data
 async function getGameData(gid) {
@@ -42,7 +54,7 @@ async function getGameData(gid) {
     return new Promise(function(resolve, reject) {
       const connection = getConnection()
 
-      var queryString = 'SELECT * FROM game WHERE gid LIKE \'';
+      let queryString = 'SELECT * FROM game WHERE gid LIKE \'';
       queryString = queryString + gid + "';";
 
       connection.query(queryString, function(err, result) {
@@ -95,23 +107,22 @@ async function updateGamePlayer(req, gid, target) {
   });
 }
 
+// Attempts to connect current user to game
 async function connectToGame(req, res, game_id) {
   let game_data = await getGameData(game_id)
     .catch((err) => console.log(err));
   console.log(game_data);
   
   // Determine where to place current user
-  var target;
-  var uid_1 = game_data.uid_1;
-  var uid_2 = game_data.uid_2;
+  let target;
+  let uid_1 = game_data.uid_1;
+  let uid_2 = game_data.uid_2;
 
   // TODO: Update game is_active flag
   // If user already in the game, else if creating a new game, 
   // else if joining an existing game, else game is full
   if(uid_1 == req.user.uid || uid_2 == req.user.uid) {
-    console.log("User already in this game. Redirecting...");
-    // TODO: redirect to specific game instance
-    res.redirect('/game');
+    console.log("User already in this game...");
   } else if(uid_1 == null) {
     console.log("New room created. Adding user " + req.user.username);
     target = "uid_1";
@@ -123,26 +134,129 @@ async function connectToGame(req, res, game_id) {
     let update = await updateGamePlayer(req, game_id, target)
     .catch((err) => console.log(err))
   } else {
-    console.log("Room is full. Returning to lobby.");
-    res.redirect('/lobby');
+    console.log("Connection failed. Room is full.");
   }
 }
 
-// TODO
-// - add game routes
-
-router.get('/connect', function(req, res, next) {
+function connectHandler(req, res, next) {
   if (req.isAuthenticated()) {
-    // TODO: Get game_id when connecting
-    // var game_id = req.body.gid;
-    var game_id = 10001;
-    connectToGame(req, res, game_id).catch((err) => console.log(err))
+    const game_id = req.body.game_id;
+    console.log("Attempting to connect to game " + game_id);
+    connectToGame(req, res, game_id)
+      .then(next)
+      .catch((err) => console.log(err))
+  } else {
+    res.redirect('/login');
+  }
+}
 
-    // res.render('game', { title: 'Game' , user: req.user.username});
+function gameHandler(req, res, next) {
+  if (req.isAuthenticated()) {
+    const username = req.user.username;
+    const userId = req.user.uid;
+    const connection = getConnection()
+
+    const game_id = req.body.game_id;
+    const queryString = "SELECT * FROM game WHERE gid LIKE " + game_id + ";";
+    connection.query(queryString, function(err, result) {
+      if (err || !result.length) {
+        console.log("Failed to lookup game state: " + err + "\n");
+        // TODO: define behavior/action for error
+        return;
+      }
+
+      const state = result[0].game_state;
+      const uid_1 = result[0].uid_1;
+      const uid_2 = result[0].uid_2;
+
+      // Redirect if current user is not in the game
+      if(userId !== uid_1 && userId !== uid_2) {
+        // TODO: Send proper http response code
+        console.log("You're not in this game.");
+        res.redirect('/lobby');
+        return;
+      }
+
+      // Determine uid of other player & current user color
+      let otherUid = uid_1;
+      let color = 'b';
+      if(userId ===  uid_1) {
+        otherUid = uid_2;
+        color = 'w';
+      } 
+
+      res.render('game', { 
+        title: 'Game', 
+        user: username,
+        color: color, 
+        uid: userId, 
+        otherUser: otherUid, 
+        state: state
+      });
+    });
+  } else {
+    res.redirect('/login');
+  }  
+}
+
+// Game routes
+
+router.get('/', function (req, res, next) {
+  if (req.isAuthenticated()) {
+    const username = req.user.username;
+    const userId = req.user.uid;
+    const connection = getConnection()
+
+    console.log("Getting state in game/");
+
+    // TODO: Need to create a random chess table/ game_id
+    // May want to use a function for query
+    const game_id = 10001;
+    const queryString = "SELECT * FROM game WHERE gid LIKE " + game_id + ";";
+    connection.query(queryString, function(err, result) {
+      if (err || !result.length) {
+        console.log("Failed to lookup game state: " + err + "\n");
+        // TODO: define behavior/action for error
+        return;
+      }
+
+      const state = result[0].game_state;
+      const uid_1 = result[0].uid_1;
+      const uid_2 = result[0].uid_2;
+
+      // Redirect if current user is not in the game
+      if(userId !== uid_1 && userId !== uid_2) {
+        // TODO: Send proper http response code
+        console.log("You're not in this game.");
+        res.redirect('/lobby');
+        return;
+      }
+
+      // Determine uid of other player & current user color
+      let otherUid = uid_1;
+      let color = 'b';
+      if(userId ===  uid_1) {
+        otherUid = uid_2;
+        color = 'w';
+      } 
+
+      res.render('game', { 
+        title: 'Game', 
+        user: username,
+        color: color, 
+        uid: userId, 
+        otherUser: otherUid, 
+        state: state
+      });
+    });
   } else {
     res.redirect('/login');
   }
 });
+
+router.post('/', connectHandler, gameHandler);
+
+router.post('/connect', connectHandler);
 
 router.get('/leave', function(req, res, next) {
   if (req.isAuthenticated()) {
@@ -235,75 +349,34 @@ router.post('/state', function (req, res, next) {
 
 });
 
+router.post('/create', function (req, res, next) {
+  if (req.isAuthenticated()) {
+    const userId = req.user.uid;
+    const lobbyTitle = req.body.lobbyTitle;
 
+    let queryString = "INSERT INTO game (`uid_1`) VALUES ('" + userId + "');";
+    // Add lobby title if specified
+    if (lobbyTitle) {
+      queryString = "INSERT INTO game (`uid_1`, `title`) VALUES ('";
+      queryString = queryString + userId + "', '" + lobbyTitle + "');";
+    }
 
+    let connection = getConnection();
+    connection.query(queryString, (err, rows, fields) => {
+      if (err) {
+        console.log("Failed to create game: " + err + "\n");
+        res.redirect('/lobby');
+        return;
+      }
 
-// create_chess_table.post('/', function (req, res, next) {
-//   if (req.isAuthenticated()) {
+      console.log("Successfully created new game!");
+      res.render('create_lobby', { title: 'Lobby Created', user: req.user.username, gameCreated: true });
+    });
+    connection.end();
+  } else {
+    res.redirect('/login');
+  }
 
-//     //Set this to random number on chess.js
-//     // var gameID = req.body.gameNum
-//     var gameID = req.body.gameId
-//     var is_active = 0
-//     var Game_State = req.body.game_state
-//     var Create_time = 0
-//     var UserId1 = req.user.username
-//     var UserId2 = ''
-//     // var UserId2 = req.body.uid_2
-    
-//     const queryString = `INSERT INTO game (gid, is_active, game_state, create_time, uid_1, uid_2) VALUES ({req.body.gameId},0,req.body.game_state,'0',0,0)`
-        
-//     // VALUES (gameID , is_active, Game_State, Create_time, UserId1 , UserId2)`
-//     connection.query(queryString, (err, rows, fields) => {
-//       if (err) {
-//         console.log("Failed to update game state: " + err + "\n");
-//         // TODO: define behavior/action for error
-//         return;
-//       }
-
-//       console.log("chess table is created");
-//       // res.send("Temporary nly!");
-//     });
-//     connection.end();
-//   } else {
-//     res.redirect('../login');
-//   }
-
-// });
-
-// an example fetching to the gameID that created when user click to create game
-
-// router.post('/state', function (req, res, next) {
-//   if (req.isAuthenticated()) {
-
-      // this will take value from joining game.
-
-
-//     let gameId = req.body.randomID; 
-//     let gameState = req.body.status;
-
-
-//     // TEMP: currently replaces '1' with '0' at the end of the string
-//     // "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" -> "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"
-//     //let gameState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"; // TEMP
-//     let queryString = "UPDATE `game` SET `game_state` = \'" + gameState + "\' WHERE gid = \'" + gameId + "\';";
-//     let connection = getConnection();
-//     connection.query(queryString, (err, rows, fields) => {
-//       if (err) {
-//         console.log("Failed to update game state: " + err + "\n");
-//         // TODO: define behavior/action for error
-//         return;
-//       }
-
-//       console.log("\nGame state update successful for gid = " + gameId + "!\n");
-//       // res.send("Temporary nly!");
-//     });
-//     connection.end();
-//   } else {
-//     res.redirect('../login');
-//   }
-
-// });
-
+});
 
 module.exports = router;

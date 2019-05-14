@@ -1,15 +1,19 @@
 div(class='d-flex h-100 justify-content-center align-items-center')
-  div(class='alert alert-secondary w-50')
-    h4(class='alert-heading') Room ID succesfully created.
-    p Your room has been sucesfully created and can now be viewed in the public list of lobbies. This room along with all your other rooms can be easily viewed and managed in your personal list of lobbies.
-    p Good luck and have fun.
-    hr
-    div(class='row justify-content-center')
-      a(class="btn btn-secondary mx-2" href="/lobby") Public Lobbies
-      a(class="btn btn-primary mx-2" href="/lobby") My Lobbies
-      a(class="btn btn-primary mx-2" href="/game") Create Table
-
-
-script.
-  var gameId = 001
-  var game_state = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+  if gameCreated
+    div(class='alert alert-secondary w-50')
+      h4(class='alert-heading justify-content-center') New game succesfully created!
+      p Your room has been sucesfully created and can now be viewed in the public list of lobbies. This room along with all your other rooms can be easily viewed and managed in your personal list of lobbies.
+      p Good luck and have fun.
+      hr
+      div(class='row justify-content-center')
+        a(class="btn btn-primary mx-2" href="/lobby") My Lobbies
+        a(class="btn btn-primary mx-2" href="/game") Connect to Game
+        a(class="btn btn-secondary mx-2" href="/lobby") Public Lobbies
+  else
+    div(class='column w-50 shadow text-center p-4')
+      h4(class='my-4') Create Lobby
+      form(class='text-left' action='/game/create' method='post')
+        div(class='form-group')
+          label Lobby Title (optional)
+          input(type='text' class='form-control' name="lobbyTitle" minlength="5" maxlength="30" placeholder=user+'\'s Game' autofocus)
+        button(type='submit' class='btn btn-primary w-100 mt-4') Create
