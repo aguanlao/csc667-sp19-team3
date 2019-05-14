@@ -43,7 +43,6 @@ app.use(passport.session());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/game', gameRouter);
-
 app.use('/message', message_content);
 
 
