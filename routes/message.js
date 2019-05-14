@@ -1,14 +1,5 @@
 var express = require('express');
-// var app = express();
 var router = express.Router();
-var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
-// var port = process.env.PORT || 3300;
-
-
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({extended: false}))
 
 // TEMPORARY: probably not the best practice to place this directly in routes?
 var mysql = require('mysql');
@@ -21,35 +12,6 @@ function getConnection() {
         database: process.env.DB_NAME
     });
 }
-
-// io.on('connection', function (socket) {
-//     console.log('a user connected');
-//     socket.on('chat message', function(msg){
-//         io.emit('chat message', msg);
-//     });
-//   socket.on('disconnect', function () {
-//     console.log('user disconnected');
-//   });
-// });
-
-// http.listen(3100, function(){
-//     console.log('listening on *:3100');
-//   });
-
-
-
-
-// app.post('/messages', (req, res) => {
-//     var message = new Message(req.body);
-//     message.save((err) =>{
-//       if(err)
-//         sendStatus(500);
-//       io.emit('message', req.body);
-//       res.sendStatus(200);
-//     })
-//   })
-
-
 router.get('/', function(req, res, next) {
     let connection = getConnection()
     let queryString = 'SELECT * FROM `message`';
@@ -81,8 +43,4 @@ router.post('/', function(req, res, next) {
 
 
   });
-
-  
-
-
   module.exports = router;
