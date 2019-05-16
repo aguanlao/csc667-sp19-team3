@@ -17,6 +17,43 @@ function getConnection() {
 
 app.use('/game', router);
 
+router.get('/message', function(req, res, next) {
+  let connection = getConnection()
+  let queryString = 'SELECT * FROM `message`';
+  connection.query(queryString, (err, rows, fields) => {
+    if (err) {
+      console.log("Failed to update game state: " + err + "\n");
+      // TODO: define behavior/action for error
+      return;
+    }
+  res.send(rows)
+  });
+  connection.end();
+
+});
+
+router.post('/message', function(req, res, next) {
+    if (req.isAuthenticated()) {
+      let userId = req.user.username;
+      let message = req.body.message;
+      let connection = getConnection()
+      let queryString = "INSERT INTO `message` (uid, gid, message) VALUES ('"+userId+"', '1111', '"+message+"')";
+      connection.query(queryString, (err, rows, fields) => {
+        if (err) {
+          console.log("Failed to update game state: " + err + "\n");
+          // TODO: define behavior/action for error
+          return;
+        }
+      res.send(fields)
+      });
+      connection.end();
+    } 
+      else {
+        alert("You must login to user this chat");
+        res.redirect('../login');
+      }
+});
+
 // Queries the database for the user id's data
 async function getUserData(uid) {
   return new Promise(function(resolve, reject) {
@@ -318,7 +355,7 @@ router.get('/leave', function(req, res, next) {
 router.get('/state', function (req, res, next) {
   if (req.isAuthenticated()) {
     // TEMP: wait for game id to be stored in front end
-    let gameId = 10001; // for use with: uid=1 => bob123
+    let gameId = 10018; // for use with: uid=1 => bob123
     let queryString = "SELECT `game_state` FROM `game` WHERE gid = " + gameId + ";";
     let connection = getConnection();
 

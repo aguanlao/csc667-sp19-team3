@@ -93,6 +93,23 @@ script.
         
         updateStatus();
         updateState();
+        var temp1 = "!{state}";
+
+      const interval = setInterval(function() {
+        gameID = '!{gameId}';
+        $.ajax({
+          method:'GET',
+          url: gameID,
+          success: function(data) {
+            var temp2 = data;
+            console.log(temp2 + "" + temp1);
+            if(temp2 === temp1) {
+              clearInterval(interval);
+            }
+          }
+        });
+      }, 2000);
+
       };
 
 
