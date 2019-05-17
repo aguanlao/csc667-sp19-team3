@@ -188,24 +188,22 @@ script.
 
       // Check for state changes if waiting for other player
       const interval = setInterval(function() {
-          if (waiting) {
-            gameID = '!{gameId}';
-            $.ajax({
-              method:'GET',
-              url: 'state/' + gameID,
-              success: function(data) {
-                let oldState = game.fen();
-                state = data;
-                console.log("Waiting for state!");
-                if (oldState !== state) {  
-                  board.position(state);
-                  game.load(state);
-                  updateStatus();
-                  waiting = false;
-                }
+          gameID = '!{gameId}';
+          $.ajax({
+            method:'GET',
+            url: 'state/' + gameID,
+            success: function(data) {
+              let oldState = game.fen();
+              state = data;
+              console.log("Waiting for state!");
+              if (oldState !== state) {  
+                board.position(state);
+                game.load(state);
+                updateStatus();
+                waiting = false;
               }
-            });
-          }
+            }
+          });
         }, 2000);
       
       
