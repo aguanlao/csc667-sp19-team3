@@ -40,7 +40,7 @@ script.
       const userColor = '!{color}';
       let draggable; // for game viewing
       var state = "!{state}";
-      var board,
+      var board, waiting,
       game = new Chess(),
       statusEl = $('#status'),
       fenEl = $('#fen'),
@@ -93,23 +93,7 @@ script.
         
         updateStatus();
         updateState();
-        var temp1 = "!{state}";
-
-      const interval = setInterval(function() {
-        gameID = '!{gameId}';
-        $.ajax({
-          method:'GET',
-          url: gameID,
-          success: function(data) {
-            var temp2 = data;
-            console.log(temp2 + "" + temp1);
-            if(temp2 === temp1) {
-              clearInterval(interval);
-            }
-          }
-        });
-      }, 2000);
-
+        waiting = true;
       };
 
 
@@ -193,10 +177,39 @@ script.
         onMouseoutSquare: onMouseoutSquare,
         onMouseoverSquare: onMouseoverSquare,
         onSnapEnd: onSnapEnd
-        };
+      };
       
       board = ChessBoard('board', cfg);
       game.load(state);
       updateStatus();
+
+      // Set flag to wait for state changes
+      if (game.turn() === userColor) {
+        waiting = false;
+      } else {
+        waiting = true;
+      }
+
+      // Check for state changes if waiting for other player
+      const interval = setInterval(function() {
+          if (waiting) {
+            gameID = '!{gameId}';
+            $.ajax({
+              method:'GET',
+              url: 'state/' + gameID,
+              success: function(data) {
+                let oldState = game.fen();
+                state = data;
+                console.log("Waiting for state!");
+                if (oldState !== state) {  
+                  board.position(state);
+                  game.load(state);
+                  updateStatus();
+                  waiting = false;
+                }
+              }
+            });
+          }
+        }, 2000);
       
       

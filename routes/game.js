@@ -352,12 +352,13 @@ router.get('/leave', function(req, res, next) {
   }
 });
 
-router.get('/state', function (req, res, next) {
+router.get('/state/:gameId', function (req, res, next) {
   if (req.isAuthenticated()) {
-    // TEMP: wait for game id to be stored in front end
-    let gameId = 10018; // for use with: uid=1 => bob123
-    let queryString = "SELECT `game_state` FROM `game` WHERE gid = " + gameId + ";";
+    let gameId = req.params.gameId;
+    let queryString = "SELECT `game_state` FROM `game` WHERE gid = \'" + gameId + "\';";
     let connection = getConnection();
+
+    console.log("Attempting to get state for game " + gameId);
 
     connection.query(queryString, (err, rows, fields) => {
       if (err || !rows.length) {
@@ -365,6 +366,7 @@ router.get('/state', function (req, res, next) {
         // TODO: define behavior/action for error
         res.status(401);
         res.send("Failed to lookup game state");
+        connection.end();
         return;
       }
 
