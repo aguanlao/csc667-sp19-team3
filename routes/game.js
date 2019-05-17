@@ -202,8 +202,6 @@ router.get('/:gameId', function (req, res, next) {
 
     console.log("Getting state in game/");
 
-    // TODO: Need to create a random chess table/ game_id
-    // May want to use a function for query
     const gameId = req.params.gameId;
     const queryString = "SELECT * FROM game WHERE gid LIKE " + gameId + ";";
     connection.query(queryString, function(err, result) {
@@ -300,7 +298,6 @@ router.post('/connect', function(req, res, next) {
     console.log("Attempting to connect to game " + game_id);
     connectToGame(req, res, game_id).catch((err) => console.log(err))
 
-    // res.render('game', { title: 'Game' , user: req.user.username});
   } else {
     res.redirect('/login');
   }
@@ -312,7 +309,6 @@ router.post('/view/connect', function(req, res, next) {
     console.log("Attempting to connect to view " + game_id);
     connectToViewGame(req, res, game_id).catch((err) => console.log(err))
 
-    // res.render('game', { title: 'Game' , user: req.user.username});
   } else {
     res.redirect('/login');
   }
@@ -360,6 +356,7 @@ router.get('/state/:gameId', function (req, res, next) {
 
     console.log("Attempting to get state for game " + gameId);
 
+    // Query db for state of game with gameId
     connection.query(queryString, (err, rows, fields) => {
       if (err || !rows.length) {
         console.log("Failed to lookup game state: " + err + "\n");
@@ -373,7 +370,6 @@ router.get('/state/:gameId', function (req, res, next) {
       let gameState = rows[0].game_state; // game attributes
       console.log("\nGame state for gid = " + gameId + ": \n" + gameState + "\n"); // test print
 
-      // TODO: front end use jquery + ajax to update game state without page refresh
       res.send(gameState); // temporary
     });
     connection.end();
@@ -384,18 +380,10 @@ router.get('/state/:gameId', function (req, res, next) {
 
 router.post('/state', function (req, res, next) {
   if (req.isAuthenticated()) {
-    // TEMP: wait for game id to be stored in front end
-    // let gameId = 10001; // for use with: uid=1 => bob123
-    // let gameState = req.body.status;
-    // if(gameState == '')
-      // let gameState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    // else 
-      let gameId = req.body.gameId;
-      let gameState = req.body.status;
+    let gameId = req.body.gameId;
+    let gameState = req.body.status;
     
-    // TEMP: currently replaces '1' with '0' at the end of the string
-    // "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" -> "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"
-    //let gameState = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"; // TEMP
+    // Update game state for game with gameId
     let queryString = "UPDATE `game` SET `game_state` = \'" + gameState + "\' WHERE gid = \'" + gameId + "\';";
     let connection = getConnection();
     connection.query(queryString, (err, rows, fields) => {

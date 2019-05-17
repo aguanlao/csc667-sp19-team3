@@ -126,15 +126,11 @@ script.
 
       };
 
-      // Sends AJAX request to server to update game state
-      // TODO: Use AJAX to wait for game state update
       var updateState = function() {
         $.ajax({
           method:'POST',
           url: 'state', 
           data: {status: game.fen(), gameId: !{gameId}}, 
-        //- success: function(data){ alert(data); }, 
-        //- error: function(xhr, desc, err){console.log(err);}
         });
       };
       
