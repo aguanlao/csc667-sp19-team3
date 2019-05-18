@@ -8,7 +8,11 @@ div(class='card overflow-auto' id="world_chat" style="height: 400px")
 div(class='input-group border-top pt-2' )
     input(type='text' class='form-control' placeholder='Message world chat' id="message")
     div(class='input-group-append')
-        button(class='btn btn-outline-primary' onClick='ButtonIsClicked()') Send
+        if user
+            button(class='btn btn-outline-primary' onClick='ButtonIsClicked()') Send
+        else
+            a(href='../login')
+                button(class='btn btn-outline-primary') Send
 
 script.
     var num_messages = 0
