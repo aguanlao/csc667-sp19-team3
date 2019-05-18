@@ -14,7 +14,7 @@ function getConnection() {
     });
 }
 
-app.use('/message', router);
+app.use('../message', router);
 
 router.get('/', function(req, res, next) {
     let connection = getConnection()
@@ -31,7 +31,7 @@ router.get('/', function(req, res, next) {
   
 });
 
-router.post('/', function(req, res, next) {
+router.post('../', function(req, res, next) {
       if (req.isAuthenticated()) {
         let userId = req.user.username;
         let message = req.body.message;
