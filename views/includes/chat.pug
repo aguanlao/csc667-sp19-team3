@@ -36,6 +36,7 @@ script.
 
     function ButtonIsClicked(){
         var chat_message = $("#message").val()
+        $("#message").val("")
         $("#world_chat").html(null) 
         //- Check if message is empty or only space, then do nothing
         if(chat_message.trim().length != 0){           
