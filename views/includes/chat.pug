@@ -5,7 +5,10 @@ div(class='list group h-75 overflow-auto' id="world_chat")
     li(class='list-group-item h-100 y-100 pt-5 text-center')
         div(class='spinner-border text-primary' role='status')
 div(class='input-group border-top pt-2' )
-    input(type='text' class='form-control' placeholder='Message chat' id="message")
+    if user
+        input(type='text' class='form-control' placeholder='Message chat' id="message")
+    else
+        input(type='text' class='form-control' placeholder='Message chat' id="message" readonly)
     div(class='input-group-append')
         button(class='btn btn-outline-primary' onClick='ButtonIsClicked()') Send
 
