@@ -242,7 +242,8 @@ router.get('/:gameId', function (req, res, next) {
     console.log("Getting state in game/");
 
     const gameId = req.params.gameId;
-    const queryString = "SELECT * FROM game WHERE gid LIKE " + gameId + ";";
+    //const queryString = "SELECT * FROM game WHERE gid LIKE " + gameId + ";";
+    const queryString = "SELECT *, game.uid_1 = user.uid AS username1, game.uid_2 = user.uid AS username2 FROM game JOIN user WHERE game.gid LIKE " + gameId + " AND (user.uid = game.uid_1 OR user.uid = game.uid_2);";
     connection.query(queryString, function(err, result) {
       if (err || !result.length) {
         console.log("Failed to lookup game state: " + err + "\n");
@@ -272,12 +273,33 @@ router.get('/:gameId', function (req, res, next) {
         color = 'w';
       } 
 
+      // check for number of players in game
+      let username1 = "";
+      let username2 = "";
+      if (result.length == 2) {
+        if (result[0].username1) {
+          username1 = result[0].username;
+          username2 = result[1].username;
+        } else {
+          username1 = result[1].username;
+          username2 = result[0].username;
+        }
+      } else {
+        if (result[0].username1) {
+          username1 = result[0].username;
+        } else {
+          username2 = result[1].username;
+        }
+      }
+
       res.render('game', { 
         title: 'Game', 
         user: username,
         color: color, 
-        uid: userId, 
-        otherUser: otherUid, 
+        uid: userId,
+        username1: username1,
+        otherUser: otherUid,
+        username2: username2,
         state: state,
         gameId: gameId
       });
@@ -298,7 +320,8 @@ router.get('/view/:gameId', function (req, res, next) {
 
     // May want to use a function for query
     const gameId = req.params.gameId;
-    const queryString = "SELECT * FROM game WHERE gid LIKE " + gameId + ";";
+    //const queryString = "SELECT * FROM game WHERE gid LIKE " + gameId + ";";
+    const queryString = "SELECT *, game.uid_1 = user.uid AS username1, game.uid_2 = user.uid AS username2 FROM game JOIN user WHERE game.gid LIKE " + gameId + " AND (user.uid = game.uid_1 OR user.uid = game.uid_2);";
     connection.query(queryString, function(err, result) {
       if (err || !result.length) {
         console.log("Failed to lookup game state: " + err + "\n");
@@ -314,11 +337,32 @@ router.get('/view/:gameId', function (req, res, next) {
       console.log("User 1: " + uid1);
       console.log("User 2: " + uid2 + "\n");
 
+      // check for number of players in game
+      let username1 = "";
+      let username2 = "";
+      if (result.length == 2) {
+        if (result[0].username1) {
+          username1 = result[0].username;
+          username2 = result[1].username;
+        } else {
+          username1 = result[1].username;
+          username2 = result[0].username;
+        }
+      } else {
+        if (result[0].username1) {
+          username1 = result[0].username;
+        } else {
+          username2 = result[1].username;
+        }
+      }
+
       res.render('game', { 
         title: 'Game', 
         user: username,
         color: 'neither', 
-        uid: uid1, 
+        uid: uid1,
+        username1: username1,
+        username2: username2,
         otherUser: uid2, 
         state: state,
         gameId: gameId,
