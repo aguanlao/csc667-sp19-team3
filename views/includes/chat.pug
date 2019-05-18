@@ -1,12 +1,11 @@
-ul(class='nav nav-tabs pt-3')
-    li(class='nav item')
-        a(class='nav-link active') Chat Room
-
+h3(class='text-center pt-4 pb-2') Chat Room
 
 //- div(class='list group h-75' id="world_chat")
-div(class='card overflow-auto' id="world_chat" style="height: 400px")
+div(class='list group h-75 overflow-auto' id="world_chat")
+    li(class='list-group-item h-100 y-100 pt-5 text-center')
+        div(class='spinner-border text-primary' role='status')
 div(class='input-group border-top pt-2' )
-    input(type='text' class='form-control' placeholder='Message world chat' id="message")
+    input(type='text' class='form-control' placeholder='Message chat' id="message")
     div(class='input-group-append')
         button(class='btn btn-outline-primary' onClick='ButtonIsClicked()') Send
 
@@ -63,20 +62,13 @@ script.
 
     function messages(rows){
         $("#world_chat").html(null) 
-        if(rows.length <= 6){
-            for (i=0 ; i < rows.length ; i++){
-                var messages_router =  $("#world_chat").html();
-                var row = rows[i];
-                $("#world_chat").html(messages_router + '<strong>' + row.uid + ': ' + '<small>' + '(' + row.timestamp + '): ' + row.message + '<hr>');
-            }
+        for (i=0 ; (i < rows.length) && (i < 20); i++){
+            var messages_router =  $("#world_chat").html();
+            var row = rows[i];
+            $("#world_chat").html( 
+                 messages_router + "<li class='list-group-item mb-1 mx-1'> <div class='d-flex w-100 justify-content-start'> <h6 class='mb-1 mr-2'>" + row.uid + "</h6><small class='text-muted text-light'>" + '(' + row.timestamp + ')' + '</small></div>' + row.message + '</li>'
+            );
         }
-        else{                       
-            for (i= (rows.length - 6) ; i < rows.length ; i++){
-                var messages_content_one =  $("#world_chat").html();
-                var row = rows[i];
-                $("#world_chat").html(messages_content_one + '<strong>' + row.uid + ': ' + '<small>' + '(' + row.timestamp + '): ' + row.message + '<hr>');
-            }
-         }
     }  
 
 

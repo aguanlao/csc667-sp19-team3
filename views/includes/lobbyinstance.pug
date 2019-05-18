@@ -16,7 +16,10 @@ if lobbies
             div(class='d-flex justify-content-around align-items-center')
               form(class='inline my-0' action='/game/connect' method='post')
                 input(type='hidden' name='game_id' value=lobby.gid)
-                button(type='submit' class="btn btn-secondary") Join
+                if uid !== lobby.uid_2 && uid !== lobby.uid_1 && lobby.uid_2
+                  button(type='submit' class="btn btn-secondary" disabled) Join
+                else
+                  button(type='submit' class="btn btn-primary") Join
               form(class='inline my-0' action='/game/view/connect' method='post')
                 input(type='hidden' name='game_id' value=lobby.gid)
                 button(type='submit' class="btn btn-outline-secondary") View

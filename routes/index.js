@@ -182,7 +182,7 @@ router.get('/mylobbies', function(req, res, next) {
 
       console.log("Lobbies count: " + rows.length + "\n");
   
-      res.render('lobby', {title: 'Lobby', user: username, lobbies: rows, uid: req.user.uid});
+      res.render('user_lobby', {title: 'Lobby', user: username, lobbies: rows, uid: req.user.uid});
     });
     connection.end();
   } else {
