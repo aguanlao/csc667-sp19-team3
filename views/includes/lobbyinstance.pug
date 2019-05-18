@@ -23,6 +23,6 @@ if lobbies
               form(class='inline my-0' action='/game/view/connect' method='post')
                 input(type='hidden' name='game_id' value=lobby.gid)
                 button(type='submit' class="btn btn-outline-secondary") View
-      div(class='card-footer text-muted small text-right py-1') Created by !{lobby.uid_1}.
+      div(class='card-footer text-muted small text-right py-1') Created by Player !{lobby.uid_1} (!{lobby.creation_time}).
 else
   p(class='text-muted text-center') There are no active lobbies.

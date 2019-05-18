@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var passport = require('passport');
+var moment = require('moment');
 
 // TEMPORARY: probably not the best practice to place this directly in routes?
 var mysql = require('mysql');
@@ -154,8 +155,18 @@ router.get('/lobby', function(req, res, next) {
       }
 
       console.log("Lobbies count: " + rows.length + "\n");
+      
+      // Convert lobby creation time to relative time
+      if (rows) {
+        lobbies = rows;
+        for (i = 0; i < rows.length; i++) {
+          time = lobbies[i].creation_time;
+          lobbies[i].creation_time = moment(time).subtract(7, 'hours').fromNow();
+          console.log(lobbies[i]);
+        }
+      }
   
-      res.render('lobby', {title: 'Lobby', user: username, lobbies: rows, uid: req.user.uid});
+      res.render('lobby', {title: 'Lobby', user: username, lobbies: lobbies.reverse(), uid: req.user.uid});
     });
     connection.end();
   } else {

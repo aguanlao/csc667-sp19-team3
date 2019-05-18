@@ -10,7 +10,11 @@ div(class='input-group border-top pt-2' )
     else
         input(type='text' class='form-control' placeholder='Message chat' id="message" readonly)
     div(class='input-group-append')
-        button(class='btn btn-outline-primary' onClick='ButtonIsClicked()') Send
+        if user
+            button(class='btn btn-outline-primary' onClick='ButtonIsClicked()') Send
+        else
+            a(href='../login')
+                button(class='btn btn-outline-primary') Send
 
 script.
     var num_messages = 0
