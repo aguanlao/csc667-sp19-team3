@@ -131,8 +131,12 @@ script.
           method:'POST',
           url: 'state', 
           data: {status: game.fen(), gameId: !{gameId}}, 
-          success: ,
-          error: 
+          success: function(result){
+            console.log("updateState is a success.");
+          },
+          error: function(result){
+            console.log("updateState is a failure.");
+          }
         });
       };
       
