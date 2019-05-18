@@ -127,6 +127,7 @@ script.
       };
 
       var updateState = function() {
+        console.log("Sending POST with state:\n" + game.fen());
         $.ajax({
           method:'POST',
           url: 'state', 
