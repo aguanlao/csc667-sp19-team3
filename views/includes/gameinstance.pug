@@ -19,7 +19,7 @@ div(class='card bg-light w-100')
     div(class='row')
       div(class='col-5')
         div(class='d-flex justify-content-around')
-          h5(id="player1_turn") Player !{uid}
+          h5(id="player1_turn") !{username1}
           if color === 'w'
             p White
           else
@@ -29,7 +29,7 @@ div(class='card bg-light w-100')
           h5 vs.
       div(class='col-5')
         div(class='d-flex justify-content-around')
-          h5(id="player2_turn") Player !{otherUser}
+          h5(id="player2_turn") !{username2}
           if color === 'w'
             p Black
           else
