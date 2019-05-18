@@ -370,7 +370,7 @@ router.get('/state/:gameId', function (req, res, next) {
       let gameState = rows[0].game_state; // game attributes
       console.log("\nGame state for gid = " + gameId + ": \n" + gameState + "\n"); // test print
 
-      res.send(gameState); // temporary
+      res.status(200).send(gameState); 
     });
     connection.end();
   } else {
@@ -382,6 +382,12 @@ router.post('/state', function (req, res, next) {
   if (req.isAuthenticated()) {
     let gameId = req.body.gameId;
     let gameState = req.body.status;
+
+    // TODO: Remove debug statements
+    // Debug for state updates
+    let userId = req.body.uid;
+    let timestamp = req.body.time;
+    console.log("Changing state by user " + userId + " in game " + gameId + " to " + gameState + " @" + timestamp);
     
     // Update game state for game with gameId
     let queryString = "UPDATE `game` SET `game_state` = \'" + gameState + "\' WHERE gid = \'" + gameId + "\';";
@@ -396,6 +402,7 @@ router.post('/state', function (req, res, next) {
       }
 
       console.log("\nGame state update successful for gid = " + gameId + "!\n");
+      res.status(200).send("Successfully updated state!");
     });
     connection.end();
   } else {

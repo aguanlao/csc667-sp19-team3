@@ -128,10 +128,11 @@ script.
 
       var updateState = function() {
         console.log("Sending POST with state:\n" + game.fen());
+        let timestamp = new Date().toLocaleString();
         $.ajax({
           method:'POST',
           url: 'state', 
-          data: {status: game.fen(), gameId: !{gameId}}, 
+          data: {status: game.fen(), gameId: !{gameId}, uid: !{uid}, time: timestamp}, 
           success: function(result){
             console.log("updateState is a success.");
           },
@@ -203,7 +204,7 @@ script.
               let oldState = game.fen();
               state = data;
               console.log("Waiting for state!");
-              if (oldState !== state && waiting === true) {  
+              if (oldState !== state) {  
                 board.position(state);
                 game.load(state);
                 updateStatus();
