@@ -19,7 +19,7 @@ div(class='card bg-light w-100')
     div(class='row')
       div(class='col-5')
         div(class='d-flex justify-content-around')
-          h5(id="player1_turn") Player !{uid}
+          h5(id="player1_turn") !{username1}
           if color === 'w'
             p White
           else
@@ -29,7 +29,7 @@ div(class='card bg-light w-100')
           h5 vs.
       div(class='col-5')
         div(class='d-flex justify-content-around')
-          h5(id="player2_turn") Player !{otherUser}
+          h5(id="player2_turn") !{username2}
           if color === 'w'
             p Black
           else
@@ -40,7 +40,7 @@ script.
       const userColor = '!{color}';
       let draggable; // for game viewing
       var state = "!{state}";
-      var board,
+      var board, waiting,
       game = new Chess(),
       statusEl = $('#status'),
       fenEl = $('#fen'),
@@ -93,6 +93,7 @@ script.
         
         updateStatus();
         updateState();
+        waiting = true;
       };
 
 
@@ -125,15 +126,19 @@ script.
 
       };
 
-      // Sends AJAX request to server to update game state
-      // TODO: Use AJAX to wait for game state update
       var updateState = function() {
+        console.log("Sending POST with state:\n" + game.fen());
+        let timestamp = new Date().toLocaleString();
         $.ajax({
           method:'POST',
           url: 'state', 
-          data: {status: game.fen(), gameId: !{gameId}}, 
-        //- success: function(data){ alert(data); }, 
-        //- error: function(xhr, desc, err){console.log(err);}
+          data: {status: game.fen(), gameId: !{gameId}, uid: !{uid}, time: timestamp}, 
+          success: function(result){
+            console.log("updateState is a success.");
+          },
+          error: function(result){
+            console.log("updateState is a failure.");
+          }
         });
       };
       
@@ -176,10 +181,37 @@ script.
         onMouseoutSquare: onMouseoutSquare,
         onMouseoverSquare: onMouseoverSquare,
         onSnapEnd: onSnapEnd
-        };
+      };
       
       board = ChessBoard('board', cfg);
       game.load(state);
       updateStatus();
+
+      // Set flag to wait for state changes
+      if (game.turn() === userColor) {
+        waiting = false;
+      } else {
+        waiting = true;
+      }
+
+      // Check for state changes if waiting for other player
+      const interval = setInterval(function() {
+          gameID = '!{gameId}';
+          $.ajax({
+            method:'GET',
+            url: 'state/' + gameID,
+            success: function(data) {
+              let oldState = game.fen();
+              state = data;
+              console.log("Waiting for state!");
+              if (oldState !== state) {  
+                board.position(state);
+                game.load(state);
+                updateStatus();
+                waiting = false;
+              }
+            }
+          });
+        }, 2000);
       
       
