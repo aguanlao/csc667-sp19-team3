@@ -203,7 +203,7 @@ script.
               let oldState = game.fen();
               state = data;
               console.log("Waiting for state!");
-              if (oldState !== state) {  
+              if (oldState !== state && waiting === true) {  
                 board.position(state);
                 game.load(state);
                 updateStatus();
