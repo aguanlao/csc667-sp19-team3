@@ -17,6 +17,8 @@ function getConnection() {
 
 app.use('/game', router);
 
+// TODO: migrate message routes to message.js
+
 router.get('/message', function(req, res, next) {
   let connection = getConnection()
   let queryString = 'SELECT * FROM `message`';
@@ -51,6 +53,43 @@ router.post('/message', function(req, res, next) {
       else {
         alert("You must login to user this chat");
         res.redirect('../login');
+      }
+});
+
+router.get('/view/message', function(req, res, next) {
+  let connection = getConnection()
+  let queryString = 'SELECT * FROM `message`';
+  connection.query(queryString, (err, rows, fields) => {
+    if (err) {
+      console.log("Failed to update game state: " + err + "\n");
+      // TODO: define behavior/action for error
+      return;
+    }
+  res.send(rows)
+  });
+  connection.end();
+
+});
+
+router.post('/view/message', function(req, res, next) {
+    if (req.isAuthenticated()) {
+      let userId = req.user.username;
+      let message = req.body.message;
+      let connection = getConnection()
+      let queryString = "INSERT INTO `message` (uid, gid, message) VALUES ('"+userId+"', '1111', '"+message+"')";
+      connection.query(queryString, (err, rows, fields) => {
+        if (err) {
+          console.log("Failed to update game state: " + err + "\n");
+          // TODO: define behavior/action for error
+          return;
+        }
+      res.send(fields)
+      });
+      connection.end();
+    } 
+      else {
+        alert("You must login to user this chat");
+        res.redirect('../../login');
       }
 });
 
@@ -255,7 +294,7 @@ router.get('/view/:gameId', function (req, res, next) {
     //const userId = req.user.uid;
     const connection = getConnection()
 
-    console.log("Getting state in game/");
+    console.log("Getting state in game/view");
 
     // May want to use a function for query
     const gameId = req.params.gameId;
@@ -375,6 +414,36 @@ router.get('/state/:gameId', function (req, res, next) {
     connection.end();
   } else {
     res.redirect('../login');
+  }
+});
+
+router.get('/view/state/:gameId', function (req, res, next) {
+  if (req.isAuthenticated()) {
+    let gameId = req.params.gameId;
+    let queryString = "SELECT `game_state` FROM `game` WHERE gid = \'" + gameId + "\';";
+    let connection = getConnection();
+
+    console.log("Attempting to get state for game " + gameId);
+
+    // Query db for state of game with gameId
+    connection.query(queryString, (err, rows, fields) => {
+      if (err || !rows.length) {
+        console.log("Failed to lookup game state: " + err + "\n");
+        // TODO: define behavior/action for error
+        res.status(401);
+        res.send("Failed to lookup game state");
+        connection.end();
+        return;
+      }
+
+      let gameState = rows[0].game_state; // game attributes
+      console.log("\nGame state for gid = " + gameId + ": \n" + gameState + "\n"); // test print
+
+      res.status(200).send(gameState); 
+    });
+    connection.end();
+  } else {
+    res.redirect('../../login');
   }
 });
 
