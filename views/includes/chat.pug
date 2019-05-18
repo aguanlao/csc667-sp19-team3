@@ -69,7 +69,7 @@ script.
 
     function messages(rows){
         $("#world_chat").html(null) 
-        for (i=0 ; (i < rows.length) && (i < 20); i++){
+        for (i=rows.length - 1, j=0; i >= 0, j < 20; i--, j++){
             var messages_router =  $("#world_chat").html();
             var row = rows[i];
             $("#world_chat").html( 
