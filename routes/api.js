@@ -1,6 +1,7 @@
 /**
  * Configuration for connection to database
  */
+
 var express = require('express');
 var app = express();
 var router = express.Router();
@@ -22,7 +23,10 @@ function getConnection() {
 }
 
 // <oururl>.com/api is the base url for all our api routes
-app.use('/api', router);
+app.use(
+  '/api',
+  router
+);
 
 router.get('/lobby', function (req, res, next) {
   // TODO
