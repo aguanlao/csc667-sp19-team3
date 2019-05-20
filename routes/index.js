@@ -6,13 +6,13 @@ var moment = require('moment');
 // TEMPORARY: probably not the best practice to place this directly in routes?
 var mysql = require('mysql');
 function getConnection() {
-  return mysql.createConnection({
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME
-  });
+    return mysql.createConnection({
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASS,
+        database: process.env.DB_NAME
+    });
 }
 
 // TODO
@@ -23,14 +23,24 @@ router.get('/', function(req, res, next) {
   if(req.isAuthenticated()) {
     res.redirect('/lobby');
   } else {
-    res.render('index', { title: 'Index'});
+    res.render(
+      'index', 
+      {
+        title: 'Index'
+      }
+    );
   }
 });
 
 /* GET login page. */
 router.get('/login', function(req, res, next) {
   if (!req.isAuthenticated()) {
-    res.render('login', {title: 'Login'} );
+    res.render(
+      'login',
+      {
+        title: 'Login'
+      }
+    );
   } else {
     res.redirect('/'); // TODO: possibly change route
   }
@@ -95,7 +105,12 @@ router.get('/logout', function(req, res, next) {
 /* GET register page. */
 router.get('/register', function(req, res, next) {
   if (!req.isAuthenticated()) {
-    res.render('register', { title: 'Register' });
+    res.render(
+      'register',
+      {
+        title: 'Register'
+      }
+    );
   } else {
     res.redirect('/');
   }
@@ -109,7 +124,12 @@ router.post('/register', function(req, res, next) {
 
   // check username and password undefined
   if (username == undefined && password == undefined) {
-    res.render('register', {title: 'Register'});
+    res.render (
+      'register',
+      {
+        title: 'Register'
+      }
+    );
   }
 
   console.log();
@@ -120,10 +140,17 @@ router.post('/register', function(req, res, next) {
   var queryString = 'INSERT INTO user (`username`, `password`) VALUES (?, ?);';
 
   var connection = getConnection();
-  connection.query(queryString, [username, password], (err, rows, fields) => {
+  connection.query(queryString,
+                   [username, password],
+                   (err, rows, fields) => {
     if (err) {
       console.log("Failed to insert user into database: " + err + "\n");
-      res.render('register', {title: 'Register'} );
+      res.render(
+        'register', 
+        {
+          title: 'Register'
+        }
+      );
       return;
     }
     //TODO: Handle if the registered user already exists
@@ -165,8 +192,16 @@ router.get('/lobby', function(req, res, next) {
           console.log(lobbies[i]);
         }
       }
-      
-      res.render('lobby', {title: 'Lobby', user: username, lobbies: lobbies.reverse(), uid: req.user.uid});
+  
+      res.render(
+        'lobby',
+        {
+          title: 'Lobby',
+          user: username,
+          lobbies: lobbies.reverse(),
+          uid: req.user.uid
+        }
+      );
     });
     connection.end();
   } else {
@@ -192,7 +227,7 @@ router.get('/mylobbies', function(req, res, next) {
       }
 
       console.log("Lobbies count: " + rows.length + "\n");
-      
+  
       res.render('user_lobby', {title: 'Lobby', user: username, lobbies: rows, uid: req.user.uid});
     });
     connection.end();
@@ -204,7 +239,13 @@ router.get('/mylobbies', function(req, res, next) {
 /* GET create lobby page. */
 router.get('/create_lobby', function(req, res, next) {
   if (req.isAuthenticated()) {
-    res.render('create_lobby', { title: 'Create Lobby', user: req.user.username });
+    res.render(
+      'create_lobby',
+      {
+        title: 'Create Lobby',
+        user: req.user.username
+      }
+    );
   } else {
     res.redirect('/login');
   }
@@ -213,9 +254,20 @@ router.get('/create_lobby', function(req, res, next) {
 /* GET about page. */
 router.get('/about', function(req, res, next) {
   if (req.isAuthenticated()) {
-    res.render('about', { title: 'About', user: req.user.username });
+    res.render(
+      'about',
+      {
+        title: 'About',
+        user: req.user.username
+      }
+    );
   } else {
-    res.render('about', {title: 'About'});
+    res.render(
+      'about',
+      {
+        title: 'About'
+      }
+    );
   }
 });
 
@@ -225,35 +277,36 @@ router.get('/message', function(req, res, next) {
   connection.query(queryString, (err, rows, fields) => {
     if (err) {
       console.log("Failed to update game state: " + err + "\n");
-      // TODO: define behavior/action for error
+      // defines behavior/action for error
+      res.status(401).send('Failed to update game state.');
       return;
     }
-    res.send(rows)
+  res.send(rows)
   });
   connection.end();
 
 });
 
 router.post('/message', function(req, res, next) {
-  if (req.isAuthenticated()) {
-    let userId = req.user.username;
-    let message = req.body.message;
-    let connection = getConnection()
-    let queryString = "INSERT INTO `message` (uid, gid, message) VALUES ('"+userId+"', '1111', '"+message+"')";
-    connection.query(queryString, (err, rows, fields) => {
-      if (err) {
-        console.log("Failed to update game state: " + err + "\n");
+    if (req.isAuthenticated()) {
+      let userId = req.user.username;
+      let message = req.body.message;
+      let connection = getConnection()
+      let queryString = "INSERT INTO `message` (uid, gid, message) VALUES ('"+userId+"', '1111', '"+message+"')";
+      connection.query(queryString, (err, rows, fields) => {
+        if (err) {
+          console.log("Failed to update game state: " + err + "\n");
           // TODO: define behavior/action for error
           return;
         }
-        res.send(fields)
+      res.send(fields)
       });
-    connection.end();
-  } 
-  else {
-    alert("You must login to user this chat");
-    res.redirect('../login');
-  }
+      connection.end();
+    } 
+      else {
+        alert("You must login to user this chat");
+        res.redirect('../login');
+      }
 });
 
 module.exports = router;
