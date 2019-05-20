@@ -21,6 +21,9 @@ function getConnection() {
   });
 }
 
-app.use('../message', router);
+app.use(
+  '../message',
+  router
+);
 
 module.exports = router;
