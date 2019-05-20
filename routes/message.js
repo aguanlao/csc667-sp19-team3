@@ -1,9 +1,16 @@
+/**
+* Requests and responses for message route
+*/
 var express = require('express');
 var router = express.Router();
 var app = express();
 
 var mysql = require('mysql');
 
+/**
+* Establishes a connection to the database
+* @return mysql connection
+*/
 function getConnection() {
   return mysql.createConnection({
     host: process.env.DB_HOST,
