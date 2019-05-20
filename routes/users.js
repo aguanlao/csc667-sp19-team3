@@ -1,3 +1,7 @@
+/**
+ * Responses and requests for user route
+ */
+
 var express = require('express');
 var router = express.Router();
 
