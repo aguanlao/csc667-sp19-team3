@@ -1,18 +1,19 @@
-  var express = require('express');
-  var router = express.Router();
-  var app = express();
+var express = require('express');
+var router = express.Router();
+var app = express();
 
-  var mysql = require('mysql');
-  function getConnection() {
-    return mysql.createConnection({
-      host: process.env.DB_HOST,
-      port: process.env.DB_PORT,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASS,
-      database: process.env.DB_NAME
-    });
-  }
+var mysql = require('mysql');
 
-  app.use('../message', router);
+function getConnection() {
+  return mysql.createConnection({
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME
+  });
+}
 
-  module.exports = router;
+app.use('../message', router);
+
+module.exports = router;
