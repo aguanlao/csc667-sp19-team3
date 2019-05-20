@@ -385,7 +385,8 @@ router.post('/connect', function(req, res, next) {
   if (req.isAuthenticated()) {
     const game_id = req.body.game_id;
     console.log("Attempting to connect to game " + game_id);
-    connectToGame(req, res, game_id).catch((err) => console.log(err))
+    connectToGame(req, res, game_id)
+      .catch((err) => console.log(err))
 
   } else {
     res.redirect('/login');
@@ -396,8 +397,8 @@ router.post('/view/connect', function(req, res, next) {
   if (req.isAuthenticated()) {
     const game_id = req.body.game_id;
     console.log("Attempting to connect to view " + game_id);
-    connectToViewGame(req, res, game_id).catch((err) => console.log(err))
-
+    connectToViewGame(req, res, game_id)
+      .catch((err) => console.log(err))
   } else {
     res.redirect('/login');
   }
@@ -486,8 +487,11 @@ router.get('/view/state/:gameId', function (req, res, next) {
         return;
       }
 
-      let gameState = rows[0].game_state; // game attributes
-      console.log("\nGame state for gid = " + gameId + ": \n" + gameState + "\n"); // test print
+      // game attributes
+      let gameState = rows[0].game_state;
+      
+      // test print
+      console.log("\nGame state for gid = " + gameId + ": \n" + gameState + "\n");
 
       res.status(200).send(gameState); 
     });
