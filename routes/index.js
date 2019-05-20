@@ -23,14 +23,24 @@ router.get('/', function(req, res, next) {
   if(req.isAuthenticated()) {
     res.redirect('/lobby');
   } else {
-    res.render('index', { title: 'Index'});
+    res.render(
+      'index', 
+      {
+        title: 'Index'
+      }
+    );
   }
 });
 
 /* GET login page. */
 router.get('/login', function(req, res, next) {
   if (!req.isAuthenticated()) {
-    res.render('login', {title: 'Login'} );
+    res.render(
+      'login',
+      {
+        title: 'Login'
+      }
+    );
   } else {
     res.redirect('/'); // TODO: possibly change route
   }
@@ -95,7 +105,12 @@ router.get('/logout', function(req, res, next) {
 /* GET register page. */
 router.get('/register', function(req, res, next) {
   if (!req.isAuthenticated()) {
-    res.render('register', { title: 'Register' });
+    res.render(
+      'register',
+      {
+        title: 'Register'
+      }
+    );
   } else {
     res.redirect('/');
   }
@@ -109,7 +124,12 @@ router.post('/register', function(req, res, next) {
 
   // check username and password undefined
   if (username == undefined && password == undefined) {
-    res.render('register', {title: 'Register'});
+    res.render (
+      'register',
+      {
+        title: 'Register'
+      }
+    );
   }
 
   console.log();
@@ -120,10 +140,17 @@ router.post('/register', function(req, res, next) {
   var queryString = 'INSERT INTO user (`username`, `password`) VALUES (?, ?);';
 
   var connection = getConnection();
-  connection.query(queryString, [username, password], (err, rows, fields) => {
+  connection.query(queryString,
+                   [username, password],
+                   (err, rows, fields) => {
     if (err) {
       console.log("Failed to insert user into database: " + err + "\n");
-      res.render('register', {title: 'Register'} );
+      res.render(
+        'register', 
+        {
+          title: 'Register'
+        }
+      );
       return;
     }
     //TODO: Handle if the registered user already exists
@@ -166,7 +193,15 @@ router.get('/lobby', function(req, res, next) {
         }
       }
   
-      res.render('lobby', {title: 'Lobby', user: username, lobbies: lobbies.reverse(), uid: req.user.uid});
+      res.render(
+        'lobby',
+        {
+          title: 'Lobby',
+          user: username,
+          lobbies: lobbies.reverse(),
+          uid: req.user.uid
+        }
+      );
     });
     connection.end();
   } else {
@@ -204,7 +239,13 @@ router.get('/mylobbies', function(req, res, next) {
 /* GET create lobby page. */
 router.get('/create_lobby', function(req, res, next) {
   if (req.isAuthenticated()) {
-    res.render('create_lobby', { title: 'Create Lobby', user: req.user.username });
+    res.render(
+      'create_lobby',
+      {
+        title: 'Create Lobby',
+        user: req.user.username
+      }
+    );
   } else {
     res.redirect('/login');
   }
@@ -213,9 +254,20 @@ router.get('/create_lobby', function(req, res, next) {
 /* GET about page. */
 router.get('/about', function(req, res, next) {
   if (req.isAuthenticated()) {
-    res.render('about', { title: 'About', user: req.user.username });
+    res.render(
+      'about',
+      {
+        title: 'About',
+        user: req.user.username
+      }
+    );
   } else {
-    res.render('about', {title: 'About'});
+    res.render(
+      'about',
+      {
+        title: 'About'
+      }
+    );
   }
 });
 
@@ -225,7 +277,8 @@ router.get('/message', function(req, res, next) {
   connection.query(queryString, (err, rows, fields) => {
     if (err) {
       console.log("Failed to update game state: " + err + "\n");
-      // TODO: define behavior/action for error
+      // defines behavior/action for error
+      res.status(401).send('Failed to update game state.');
       return;
     }
   res.send(rows)
