@@ -6,13 +6,13 @@ var moment = require('moment');
 // TEMPORARY: probably not the best practice to place this directly in routes?
 var mysql = require('mysql');
 function getConnection() {
-    return mysql.createConnection({
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASS,
-        database: process.env.DB_NAME
-    });
+  return mysql.createConnection({
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME
+  });
 }
 
 // TODO
@@ -165,7 +165,7 @@ router.get('/lobby', function(req, res, next) {
           console.log(lobbies[i]);
         }
       }
-  
+      
       res.render('lobby', {title: 'Lobby', user: username, lobbies: lobbies.reverse(), uid: req.user.uid});
     });
     connection.end();
@@ -192,7 +192,7 @@ router.get('/mylobbies', function(req, res, next) {
       }
 
       console.log("Lobbies count: " + rows.length + "\n");
-  
+      
       res.render('user_lobby', {title: 'Lobby', user: username, lobbies: rows, uid: req.user.uid});
     });
     connection.end();
@@ -228,32 +228,32 @@ router.get('/message', function(req, res, next) {
       // TODO: define behavior/action for error
       return;
     }
-  res.send(rows)
+    res.send(rows)
   });
   connection.end();
 
 });
 
 router.post('/message', function(req, res, next) {
-    if (req.isAuthenticated()) {
-      let userId = req.user.username;
-      let message = req.body.message;
-      let connection = getConnection()
-      let queryString = "INSERT INTO `message` (uid, gid, message) VALUES ('"+userId+"', '1111', '"+message+"')";
-      connection.query(queryString, (err, rows, fields) => {
-        if (err) {
-          console.log("Failed to update game state: " + err + "\n");
+  if (req.isAuthenticated()) {
+    let userId = req.user.username;
+    let message = req.body.message;
+    let connection = getConnection()
+    let queryString = "INSERT INTO `message` (uid, gid, message) VALUES ('"+userId+"', '1111', '"+message+"')";
+    connection.query(queryString, (err, rows, fields) => {
+      if (err) {
+        console.log("Failed to update game state: " + err + "\n");
           // TODO: define behavior/action for error
           return;
         }
-      res.send(fields)
+        res.send(fields)
       });
-      connection.end();
-    } 
-      else {
-        alert("You must login to user this chat");
-        res.redirect('../login');
-      }
+    connection.end();
+  } 
+  else {
+    alert("You must login to user this chat");
+    res.redirect('../login');
+  }
 });
 
 module.exports = router;
