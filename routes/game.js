@@ -151,7 +151,11 @@ async function getGameData(gid) {
         uid_1 = result[0].uid_1;
         uid_2 = result[0].uid_2;
         console.log("FINISHED GET QUERY");
-        data = {"is_active": is_active, "uid_1": uid_1, "uid_2": uid_2};
+        data = {
+                 "is_active": is_active,
+                 "uid_1": uid_1,
+                 "uid_2": uid_2
+               };
         connection.end();
         resolve(data);
       });
@@ -197,16 +201,16 @@ async function connectToGame(req, res, game_id) {
   // TODO: Update game is_active flag
   // If user already in the game, else if creating a new game, 
   // else if joining an existing game, else game is full
-  if(uid_1 == req.user.uid || uid_2 == req.user.uid) {
+  if (uid_1 == req.user.uid || uid_2 == req.user.uid) {
     console.log("User already in this game. Redirecting...");
     // TODO: redirect to specific game instance
     res.redirect('/game/' + game_id);
-  } else if(uid_1 == null) {
+  } else if (uid_1 == null) {
     console.log("New room created. Adding user " + req.user.username);
     target = "uid_1";
     let update = await updateGamePlayer(req, game_id, target)
     .catch((err) => console.log(err))
-  } else if(uid_2 == null) {
+  } else if (uid_2 == null) {
     console.log("Joining an existing room. Adding user " + req.user.username);
     target = "uid_2";
     let update = await updateGamePlayer(req, game_id, target)
@@ -257,7 +261,7 @@ router.get('/:gameId', function (req, res, next) {
       const uid_2 = result[0].uid_2;
       console.log("Game " + gameId + " state: " + state);
       // Redirect if current user is not in the game
-      if(userId !== uid_1 && userId !== uid_2) {
+      if (userId !== uid_1 && userId !== uid_2) {
         // TODO: Send proper http response code
         console.log("You're not in this game.");
         res.status(401).send('401 error: you are not in this game.');
@@ -268,7 +272,7 @@ router.get('/:gameId', function (req, res, next) {
       // Determine uid of other player & current user color
       let otherUid = uid_1;
       let color = 'b';
-      if(userId ===  uid_1) {
+      if (userId ===  uid_1) {
         otherUid = uid_2;
         color = 'w';
       } 
@@ -475,7 +479,7 @@ router.get('/view/state/:gameId', function (req, res, next) {
     connection.query(queryString, (err, rows, fields) => {
       if (err || !rows.length) {
         console.log("Failed to lookup game state: " + err + "\n");
-        // TODO: define behavior/action for error
+        // defines behavior/action for error
         res.status(401);
         res.send("Failed to lookup game state");
         connection.end();
@@ -510,7 +514,7 @@ router.post('/state', function (req, res, next) {
     connection.query(queryString, (err, rows, fields) => {
       if (err) {
         console.log("Failed to update game state: " + err + "\n");
-        // TODO: define behavior/action for error
+        // defines behavior/action for error
         res.status(401);
         res.send("Failed to update game state");
         return;
