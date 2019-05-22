@@ -15,9 +15,6 @@ function getConnection() {
     });
 }
 
-// TODO
-// - change renders to redirects where applicable when sessions are added
-
 /* GET home page. */
 router.get('/', function(req, res, next) {
   if(req.isAuthenticated()) {
@@ -42,7 +39,7 @@ router.get('/login', function(req, res, next) {
       }
     );
   } else {
-    res.redirect('/'); // TODO: possibly change route
+    res.redirect('/');
   }
 });
 
@@ -321,8 +318,8 @@ router.post('/message', function(req, res, next) {
       let queryString = "INSERT INTO `message` (uid, gid, message) VALUES ('"+userId+"', '1111', '"+message+"')";
       connection.query(queryString, (err, rows, fields) => {
         if (err) {
-          console.log("Failed to update game state: " + err + "\n");
-          // TODO: define behavior/action for error
+          console.log("Failed to send message: " + err + "\n");
+          res.status(500).send("Failed to send message.");
           return;
         }
       res.send(fields)

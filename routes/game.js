@@ -25,8 +25,8 @@ router.get('/message', function(req, res, next) {
   let queryString = 'SELECT * FROM `message`';
   connection.query(queryString, (err, rows, fields) => {
     if (err) {
-      console.log("Failed to update game state: " + err + "\n");
-      // TODO: define behavior/action for error
+      console.log("Failed to get messages: " + err + "\n");
+      res.status(500).send("Failed to get messages.");
       return;
     }
     
@@ -49,8 +49,8 @@ router.post('/message', function(req, res, next) {
       let queryString = "INSERT INTO `message` (uid, gid, message) VALUES ('"+userId+"', '1111', '"+message+"')";
       connection.query(queryString, (err, rows, fields) => {
         if (err) {
-          console.log("Failed to update game state: " + err + "\n");
-          // TODO: define behavior/action for error
+          console.log("Failed to update messages: " + err + "\n");
+          res.status(401).send("Failed to update messages.");
           return;
         }
         res.send(fields)
@@ -76,8 +76,8 @@ router.post('/view/message', function(req, res, next) {
       let queryString = "INSERT INTO `message` (uid, gid, message) VALUES ('"+userId+"', '1111', '"+message+"')";
       connection.query(queryString, (err, rows, fields) => {
         if (err) {
-          console.log("Failed to update game state: " + err + "\n");
-          // TODO: define behavior/action for error
+          console.log("Failed to update messages: " + err + "\n");
+          res.status(401).send("Failed to update messages.");
           return;
         }
       res.send(fields)
@@ -249,7 +249,6 @@ router.get('/:gameId', function (req, res, next) {
     connection.query(queryString, function(err, result) {
       if (err || !result.length) {
         console.log("Failed to lookup game state: " + err + "\n");
-        // TODO: define behavior/action for error
         res.status(401).send('Failed to look up game state.');
         return;
       }
@@ -260,10 +259,8 @@ router.get('/:gameId', function (req, res, next) {
       console.log("Game " + gameId + " state: " + state);
       // Redirect if current user is not in the game
       if (userId !== uid_1 && userId !== uid_2) {
-        // TODO: Send proper http response code
         console.log("You're not in this game.");
         res.status(401).send('401 error: you are not in this game.');
-        res.redirect('/lobby');
         return;
       }
 
@@ -329,7 +326,7 @@ router.get('/view/:gameId', function (req, res, next) {
     connection.query(queryString, function(err, result) {
       if (err || !result.length) {
         console.log("Failed to lookup game state: " + err + "\n");
-        // TODO: define behavior/action for error
+        res.status(401).send("Failed to lookup game state.");
         return;
       }
 
@@ -420,7 +417,6 @@ router.get('/leave', function(req, res, next) {
     connection.query(updateQueryString, (err, rows, fields) => {
       if (err) {
         console.log("Failed to find current game: " + err + "\n");
-        // TODO: define behavior/action for error
         res.status(404).send('Failed to find current game');
         return;
       }
@@ -448,7 +444,6 @@ router.get('/state/:gameId', function (req, res, next) {
     connection.query(queryString, (err, rows, fields) => {
       if (err || !rows.length) {
         console.log("Failed to lookup game state: " + err + "\n");
-        // TODO: define behavior/action for error
         res.status(401);
         res.send("Failed to lookup game state");
         connection.end();
