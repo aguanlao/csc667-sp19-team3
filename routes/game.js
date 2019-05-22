@@ -200,18 +200,19 @@ async function connectToGame(req, res, game_id) {
   // else if joining an existing game, else game is full
   if (uid_1 == req.user.uid || uid_2 == req.user.uid) {
     console.log("User already in this game. Redirecting...");
-    // TODO: redirect to specific game instance
     res.redirect('/game/' + game_id);
   } else if (uid_1 == null) {
     console.log("New room created. Adding user " + req.user.username);
     target = "uid_1";
     let update = await updateGamePlayer(req, game_id, target)
     .catch((err) => console.log(err))
+    res.redirect('/game/' + game_id);
   } else if (uid_2 == null) {
     console.log("Joining an existing room. Adding user " + req.user.username);
     target = "uid_2";
     let update = await updateGamePlayer(req, game_id, target)
     .catch((err) => console.log(err))
+    res.redirect('/game/' + game_id);
   } else {
     console.log("Room is full. Returning to lobby.");
     res.redirect('/lobby');
