@@ -253,6 +253,7 @@ router.get('/:gameId', function (req, res, next) {
       const state = result[0].game_state;
       const uid_1 = result[0].uid_1;
       const uid_2 = result[0].uid_2;
+      const lobbyTitle = result[0].title;
       console.log("Game " + gameId + " state: " + state);
       // Redirect if current user is not in the game
       if (userId !== uid_1 && userId !== uid_2) {
@@ -289,7 +290,8 @@ router.get('/:gameId', function (req, res, next) {
       }
 
       res.render('game', { 
-        title: 'Game', 
+        title: 'Game',
+        lobbyTitle: lobbyTitle, 
         user: username,
         color: color, 
         uid: userId,
