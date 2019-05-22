@@ -300,7 +300,14 @@ router.get('/message', function(req, res, next) {
       res.status(401).send('Failed to update game state.');
       return;
     }
-  res.send(rows)
+
+    // Convert timestamps to readable format
+    for (i = 0; i < rows.length; i++) {
+      time = rows[i].timestamp;
+      rows[i].timestamp = moment(time).subtract(7, 'hours').format("M/DD/YY HH:mm");
+    }
+
+    res.send(rows)
   });
   connection.end();
 

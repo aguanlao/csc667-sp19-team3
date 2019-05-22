@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 var router = express.Router();
 var passport = require('passport');
+var moment = require('moment');
 
 // TEMPORARY: probably not the best practice to place this directly in routes?
 var mysql = require('mysql');
@@ -28,7 +29,13 @@ router.get('/message', function(req, res, next) {
       // TODO: define behavior/action for error
       return;
     }
-  res.send(rows)
+    
+    // Convert timestamps to readable format
+    for (i = 0; i < rows.length; i++) {
+      time = rows[i].timestamp;
+      rows[i].timestamp = moment(time).subtract(7, 'hours').format("M/DD/YY HH:mm");
+    }
+    res.send(rows)
   });
   connection.end();
 
@@ -46,7 +53,7 @@ router.post('/message', function(req, res, next) {
           // TODO: define behavior/action for error
           return;
         }
-      res.send(fields)
+        res.send(fields)
       });
       connection.end();
     } 
@@ -57,18 +64,8 @@ router.post('/message', function(req, res, next) {
 });
 
 router.get('/view/message', function(req, res, next) {
-  let connection = getConnection()
-  let queryString = 'SELECT * FROM `message`';
-  connection.query(queryString, (err, rows, fields) => {
-    if (err) {
-      console.log("Failed to update game state: " + err + "\n");
-      // TODO: define behavior/action for error
-      return;
-    }
-  res.send(rows)
-  });
-  connection.end();
-
+  // Redirects to the root /message route
+  res.redirect('/message');
 });
 
 router.post('/view/message', function(req, res, next) {
