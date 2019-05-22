@@ -15,9 +15,6 @@ function getConnection() {
     });
 }
 
-// TODO
-// - change renders to redirects where applicable when sessions are added
-
 /* GET home page. */
 router.get('/', function(req, res, next) {
   if(req.isAuthenticated()) {
@@ -42,7 +39,7 @@ router.get('/login', function(req, res, next) {
       }
     );
   } else {
-    res.redirect('/'); // TODO: possibly change route
+    res.redirect('/');
   }
 });
 
@@ -92,9 +89,7 @@ passport.serializeUser(function(user_info, done) {
   done(null, user_info);
 });
 passport.deserializeUser(function(user_info, done) {
-  //User.findById(id, function(err, user) {
-    done(null, user_info);
-  //});
+  done(null, user_info);
 });
 
 /* GET logout page. */
@@ -164,9 +159,6 @@ router.post('/register', function(req, res, next) {
 /* GET lobby page. */
 router.get('/lobby', function(req, res, next) {
   if (req.isAuthenticated()) {
-    //console.log('\nUser: ' + req.user.username); // test print
-    //console.log('Authenicated: ' + req.isAuthenticated() + '\n'); // test print
-
     const username = req.user.username;
 
     // Get all games needing a player or in progress
@@ -189,7 +181,6 @@ router.get('/lobby', function(req, res, next) {
         for (i = 0; i < rows.length; i++) {
           time = lobbies[i].creation_time;
           lobbies[i].creation_time = moment(time).subtract(7, 'hours').fromNow();
-          // console.log(lobbies[i]);
         }
       }
   
@@ -235,7 +226,6 @@ router.get('/mylobbies', function(req, res, next) {
         for (i = 0; i < rows.length; i++) {
           time = lobbies[i].creation_time;
           lobbies[i].creation_time = moment(time).subtract(7, 'hours').fromNow();
-          // console.log(lobbies[i]);
         }
       }
   
@@ -321,11 +311,11 @@ router.post('/message', function(req, res, next) {
       let queryString = "INSERT INTO `message` (uid, gid, message) VALUES ('"+userId+"', '1111', '"+message+"')";
       connection.query(queryString, (err, rows, fields) => {
         if (err) {
-          console.log("Failed to update game state: " + err + "\n");
-          // TODO: define behavior/action for error
+          console.log("Failed to send message: " + err + "\n");
+          res.status(500).send("Failed to send message.");
           return;
         }
-      res.send(fields)
+        res.send(fields)
       });
       connection.end();
     } 
