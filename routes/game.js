@@ -80,7 +80,7 @@ router.post('/view/message', function(req, res, next) {
           res.status(401).send("Failed to update messages.");
           return;
         }
-      res.send(fields)
+        res.send(fields)
       });
       connection.end();
     } 
@@ -239,12 +239,9 @@ router.get('/:gameId', function (req, res, next) {
   if (req.isAuthenticated()) {
     const username = req.user.username;
     const userId = req.user.uid;
-    const connection = getConnection()
-
-    console.log("Getting state in game/");
-
     const gameId = req.params.gameId;
-    //const queryString = "SELECT * FROM game WHERE gid LIKE " + gameId + ";";
+    
+    const connection = getConnection()
     const queryString = "SELECT *, game.uid_1 = user.uid AS username1, game.uid_2 = user.uid AS username2 FROM game JOIN user WHERE game.gid LIKE " + gameId + " AND (user.uid = game.uid_1 OR user.uid = game.uid_2);";
     connection.query(queryString, function(err, result) {
       if (err || !result.length) {
@@ -314,14 +311,11 @@ router.get('/:gameId', function (req, res, next) {
 router.get('/view/:gameId', function (req, res, next) {
   if (req.isAuthenticated()) {
     const username = req.user.username;
-    //const userId = req.user.uid;
     const connection = getConnection()
 
     console.log("Getting state in game/view");
 
-    // May want to use a function for query
     const gameId = req.params.gameId;
-    //const queryString = "SELECT * FROM game WHERE gid LIKE " + gameId + ";";
     const queryString = "SELECT *, game.uid_1 = user.uid AS username1, game.uid_2 = user.uid AS username2 FROM game JOIN user WHERE game.gid LIKE " + gameId + " AND (user.uid = game.uid_1 OR user.uid = game.uid_2);";
     connection.query(queryString, function(err, result) {
       if (err || !result.length) {
@@ -499,12 +493,6 @@ router.post('/state', function (req, res, next) {
     let gameId = req.body.gameId;
     let gameState = req.body.status;
 
-    // TODO: Remove debug statements
-    // Debug for state updates
-    let userId = req.body.uid;
-    let timestamp = req.body.time;
-    console.log("Changing state by user " + userId + " in game " + gameId + " to " + gameState + " @" + timestamp);
-    
     // Update game state for game with gameId
     let queryString = "UPDATE `game` SET `game_state` = \'" + gameState + "\' WHERE gid = \'" + gameId + "\';";
     let connection = getConnection();
