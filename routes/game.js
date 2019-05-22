@@ -519,11 +519,14 @@ router.post('/state', function (req, res, next) {
 router.post('/create', function (req, res, next) {
   if (req.isAuthenticated()) {
     const userId = req.user.uid;
-    const lobbyTitle = req.body.lobbyTitle;
+    let lobbyTitle = req.body.lobbyTitle;
 
     let queryString = "INSERT INTO game (`uid_1`) VALUES ('" + userId + "');";
     // Add lobby title if specified
     if (lobbyTitle) {
+      //Remove special chars from title
+      lobbyTitle = lobbyTitle.replace(/['"]/g, '');
+
       queryString = "INSERT INTO game (`uid_1`, `title`) VALUES ('";
       queryString = queryString + userId + "', '" + lobbyTitle + "');";
     }
