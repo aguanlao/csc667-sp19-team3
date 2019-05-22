@@ -274,11 +274,9 @@ router.get('/:gameId', function (req, res, next) {
       let username2 = "";
       if (result.length == 2) {
         if (result[0].username1 && uid_1 === userId) {
-          color = 'b'
           username1 = result[0].username;
           username2 = result[1].username;
         } else {
-          color = 'w'
           username1 = result[1].username;
           username2 = result[0].username;
         }
