@@ -31,13 +31,13 @@ script.
         dataType: "json", 
             success: function(rows){
             var length = rows.length
-            if(num_messages < length) { 
-                update_message(length)
-                messages(rows)
-                    } 
-                }   
+                if(num_messages < length) { 
+                    update_message(length)
+                    messages(rows)
+                } 
+            }   
 
-            });
+        });
     }, 5000)
 
     function ButtonIsClicked(){
