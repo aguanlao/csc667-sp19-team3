@@ -551,6 +551,7 @@ router.post('/create', function (req, res, next) {
     connection.query(queryString, (err, rows, fields) => {
       if (err) {
         console.log("Failed to create game: " + err + "\n");
+        // TODO: Handle bad title string input
         res.redirect('/lobby');
         return;
       }
