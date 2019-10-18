@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var passport = require('passport');
+var moment = require('moment');
 
 // TEMPORARY: probably not the best practice to place this directly in routes?
 var mysql = require('mysql');
@@ -14,26 +15,35 @@ function getConnection() {
     });
 }
 
-// TODO
-// - change renders to redirects where applicable when sessions are added
-
 /* GET home page. */
 router.get('/', function(req, res, next) {
   if(req.isAuthenticated()) {
     res.redirect('/lobby');
   } else {
-    res.render('index', { title: 'Index'});
+    res.render(
+      'index', 
+      {
+        title: 'Index'
+      }
+    );
   }
 });
 
+/* GET login page. */
 router.get('/login', function(req, res, next) {
   if (!req.isAuthenticated()) {
-    res.render('login', {title: 'Login'} );
+    res.render(
+      'login',
+      {
+        title: 'Login'
+      }
+    );
   } else {
-    res.redirect('/'); // TODO: possibly change route
+    res.redirect('/');
   }
 });
 
+/* POST login page. */
 router.post('/login', function(req, res, next){
 
   const username = req.body.username;
@@ -79,24 +89,29 @@ passport.serializeUser(function(user_info, done) {
   done(null, user_info);
 });
 passport.deserializeUser(function(user_info, done) {
-  //User.findById(id, function(err, user) {
-    done(null, user_info);
-  //});
+  done(null, user_info);
 });
 
+/* GET logout page. */
 router.get('/logout', function(req, res, next) {
   req.logout();
-  res.redirect('/');  
+  res.redirect('/'); // logout user is redirected to homepage  
 });
-
+/* GET register page. */
 router.get('/register', function(req, res, next) {
   if (!req.isAuthenticated()) {
-    res.render('register', { title: 'Register' });
+    res.render(
+      'register',
+      {
+        title: 'Register'
+      }
+    );
   } else {
-    res.redirect('/'); // TODO: possibly change route
+    res.redirect('/');
   }
 });
 
+/* POST register page. */
 router.post('/register', function(req, res, next) {
 
   const username = req.body.username;
@@ -104,7 +119,12 @@ router.post('/register', function(req, res, next) {
 
   // check username and password undefined
   if (username == undefined && password == undefined) {
-    res.render('register', {title: 'Register'});
+    res.render (
+      'register',
+      {
+        title: 'Register'
+      }
+    );
   }
 
   console.log();
@@ -115,10 +135,17 @@ router.post('/register', function(req, res, next) {
   var queryString = 'INSERT INTO user (`username`, `password`) VALUES (?, ?);';
 
   var connection = getConnection();
-  connection.query(queryString, [username, password], (err, rows, fields) => {
+  connection.query(queryString,
+                   [username, password],
+                   (err, rows, fields) => {
     if (err) {
       console.log("Failed to insert user into database: " + err + "\n");
-      res.render('register', {title: 'Register'} );
+      res.render(
+        'register', 
+        {
+          title: 'Register'
+        }
+      );
       return;
     }
     //TODO: Handle if the registered user already exists
@@ -129,11 +156,9 @@ router.post('/register', function(req, res, next) {
   connection.end();
 });
 
+/* GET lobby page. */
 router.get('/lobby', function(req, res, next) {
   if (req.isAuthenticated()) {
-    // TODO: Remove debug statements
-    console.log('\nUser: ' + req.user.username); // test print
-    console.log('Authenicated: ' + req.isAuthenticated() + '\n'); // test print
     const username = req.user.username;
 
     // Get all games needing a player or in progress
@@ -143,13 +168,31 @@ router.get('/lobby', function(req, res, next) {
     connection.query(queryString, (err, rows, fields) => {
       if (err) {
         console.log("Failed to get lobbies: " + err + "\n");
-        // TODO: Send proper HTTP response code
+        // 401 Unauthorized
+        res.status(401).send("Oops, Failed to get lobbies"); 
         return;
       }
 
       console.log("Lobbies count: " + rows.length + "\n");
+      
+      // Convert lobby creation time to relative time
+      if (rows) {
+        lobbies = rows;
+        for (i = 0; i < rows.length; i++) {
+          time = lobbies[i].creation_time;
+          lobbies[i].creation_time = moment(time).subtract(7, 'hours').fromNow();
+        }
+      }
   
-      res.render('lobby', {title: 'Lobby', user: username, lobbies: rows});
+      res.render(
+        'lobby',
+        {
+          title: 'Lobby',
+          user: username,
+          lobbies: lobbies.reverse(),
+          uid: req.user.uid
+        }
+      );
     });
     connection.end();
   } else {
@@ -157,26 +200,129 @@ router.get('/lobby', function(req, res, next) {
   }
 });
 
+/* GET my lobbies page. */
 router.get('/mylobbies', function(req, res, next) {
   if (req.isAuthenticated()) {
     const username = req.user.username;
-    res.render('lobby', { title: 'Lobby' , user: username});
+    const userId = req.user.uid;
+
+    // Get all games needing a player or in progress
+    const queryString = "SELECT * FROM game WHERE (is_active=0 OR is_active=1) AND (uid_1=" + userId + " OR uid_2=" + userId + ");";
+    
+    var connection = getConnection();
+    connection.query(queryString, (err, rows, fields) => {
+      if (err) {
+        console.log("Failed to get lobbies: " + err + "\n");
+        res.status(401).send("Failed to get lobbies: " + err);
+        return;
+      }
+
+      console.log("Lobbies count: " + rows.length + "\n");
+
+      // Convert lobby creation time to relative time
+      let lobbies;
+      if (rows) {
+        lobbies = rows;
+        for (i = 0; i < rows.length; i++) {
+          time = lobbies[i].creation_time;
+          lobbies[i].creation_time = moment(time).subtract(7, 'hours').fromNow();
+        }
+      }
+  
+      res.render(
+        'user_lobby', 
+        {
+          title: 'Lobby', 
+          user: username, 
+          lobbies: lobbies.reverse(), 
+          uid: req.user.uid
+        }
+      );
+    });
+    connection.end();
   } else {
     res.redirect('/login');
   }
 });
 
+/* GET create lobby page. */
 router.get('/create_lobby', function(req, res, next) {
   if (req.isAuthenticated()) {
-    res.render('create_lobby', { title: 'Create Lobby', user: req.user.username });
+    res.render(
+      'create_lobby',
+      {
+        title: 'Create Lobby',
+        user: req.user.username
+      }
+    );
   } else {
     res.redirect('/login');
   }
 });
 
-
+/* GET about page. */
 router.get('/about', function(req, res, next) {
-  res.render('about', { title: 'About' });
+  if (req.isAuthenticated()) {
+    res.render(
+      'about',
+      {
+        title: 'About',
+        user: req.user.username
+      }
+    );
+  } else {
+    res.render(
+      'about',
+      {
+        title: 'About'
+      }
+    );
+  }
+});
+
+router.get('/message', function(req, res, next) {
+  let connection = getConnection()
+  let queryString = 'SELECT * FROM `message`';
+  connection.query(queryString, (err, rows, fields) => {
+    if (err) {
+      console.log("Failed to update game state: " + err + "\n");
+      // defines behavior/action for error
+      res.status(401).send('Failed to update game state.');
+      return;
+    }
+
+    // Convert timestamps to readable format
+    for (i = 0; i < rows.length; i++) {
+      time = rows[i].timestamp;
+      rows[i].timestamp = moment(time).subtract(7, 'hours').format("M/DD/YY HH:mm");
+    }
+
+    res.send(rows)
+  });
+  connection.end();
+
+});
+
+router.post('/message', function(req, res, next) {
+    if (req.isAuthenticated()) {
+      let userId = req.user.username;
+      let message = req.body.message;
+      let connection = getConnection()
+      let queryString = "INSERT INTO `message` (uid, gid, message) VALUES ('"+userId+"', '1111', '"+message+"')";
+      connection.query(queryString, (err, rows, fields) => {
+        if (err) {
+          console.log("Failed to send message: " + err + "\n");
+          res.status(500).send("Failed to send message.");
+          return;
+        }
+        res.send(fields)
+      });
+      connection.end();
+    } 
+      else {
+        alert("You must login to user this chat");
+        res.redirect('../login');
+      }
 });
 
 module.exports = router;
